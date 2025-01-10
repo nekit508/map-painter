@@ -1,0 +1,13 @@
+{
+    "name": "map-painter",
+    "displayName": "Map painter",
+    "description": "",
+    "author": "nekit508",
+    "subtitle": "",
+    "repo": "",
+    "version": "",
+    "minGameVersion": 146,
+    "java": true,
+    "main": "com.github.nekit508.mappainter.core.MPCore",
+    "hidden": false
+}

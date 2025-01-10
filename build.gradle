@@ -1,0 +1,27 @@
+plugins{
+    id "java"
+    id "com.github.nekit508.mindustry-mod-plugin" version "$nmpVersion" apply true
+}
+
+project.repositories {
+    mavenCentral()
+    mavenLocal()
+    maven { url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
+    maven { url "https://www.jitpack.io" }
+}
+
+group = "com.github.nekit508"
+version = "0.0.1"
+
+sourceSets.main.java.srcDirs = ["src", "gen"]
+sourceSets.main.resources.srcDirs = ["res"]
+
+nmp {
+    mindutsryVersion = "v146"
+
+    parseSettings()
+    configureCompileTask()
+    initTasks()
+    modBaseDependencies()
+}
+
