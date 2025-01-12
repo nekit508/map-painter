@@ -16,12 +16,5 @@ version = "0.0.1"
 sourceSets.main.java.srcDirs = ["src", "gen"]
 sourceSets.main.resources.srcDirs = ["res"]
 
-nmp {
-    mindutsryVersion = "v146"
-
-    parseSettings()
-    configureCompileTask()
-    initTasks()
-    modBaseDependencies()
-}
+nmp.genericInit(mindustryVersion)
 
