@@ -18,3 +18,7 @@ sourceSets.main.resources.srcDirs = ["res"]
 
 nmp.genericInit(mindustryVersion)
 
+dependencies {
+    //compileOnly "com.github.Zelaux.MindustryModCore:annotations:"
+    //annotationProcessor "com.github.Zelaux.MindustryModCore:annotations:v2.0.2"
+}

@@ -11,7 +11,6 @@ import arc.scene.event.InputEvent;
 import arc.scene.ui.Slider;
 import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
-import arc.util.Log;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
 import com.github.nekit508.mappainter.graphics.Drawe;
@@ -56,8 +55,6 @@ public class HandWrittenFigureType extends FigureType {
         @Override
         public void draw() {
             if (points.size < 1) return;
-
-            Log.info("draw");
 
             Draw.color(linesColor);
             Lines.stroke(linesStroke);
