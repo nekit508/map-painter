@@ -3,7 +3,10 @@ package com.github.nekit508.mappainter.control;
 import arc.Core;
 import arc.Events;
 import arc.input.KeyCode;
+import arc.math.Interp;
+import arc.scene.Action;
 import arc.scene.Element;
+import arc.scene.actions.Actions;
 import arc.scene.event.Touchable;
 import arc.scene.ui.ButtonGroup;
 import arc.scene.ui.TextButton;
@@ -13,6 +16,7 @@ import arc.util.Time;
 import arc.util.Tmp;
 import com.github.nekit508.mappainter.core.MPCore;
 import com.github.nekit508.mappainter.graphics.figure.FigureType;
+import com.github.nekit508.mappainter.ui.RadialMenu;
 import mindustry.Vars;
 import mindustry.game.EventType;
 import mindustry.gen.Icon;
@@ -24,10 +28,13 @@ public class MPControl {
     public FigureType.Figure figure;
     public boolean locked = true;
 
-    public Table mainTable, selectTable, creationTable, mapOverlay;
+    public Table mainTable, selectTable, creationTable;
+    public Element mapOverlay;
 
     public WidgetGroup hudGroup;
     ButtonGroup<TextButton> buttons = new ButtonGroup<>();
+
+    public RadialMenu menu;
 
     public MPControl() {
         Events.run(EventType.Trigger.update, () -> {
@@ -43,66 +50,121 @@ public class MPControl {
     public void init() {
         hudGroup = new WidgetGroup();
         hudGroup.setFillParent(true);
-        hudGroup.touchable = Touchable.childrenOnly;
+        hudGroup.touchable = Touchable.enabled;
         hudGroup.visible(() -> !locked);
         Core.scene.add(hudGroup);
+
+        hudGroup.addChild(menu = new RadialMenu(menu -> {
+            FigureType.figureTypes.each(type -> {
+                menu.addButton(new RadialMenu.RadialMenuButton(){{
+                    icon = type.icon;
+                    checked = figure != null && type == figure.type;
+                    listener = btn -> {
+                        if (btn.checked)
+                            unselectFigure();
+                        else {
+                            btn.parent.buttons.each(b -> b.checked = false);
+                            figureSelected(type);
+                        }
+                        checked = !checked;
+                    };
+                }});
+            });
+        }){{
+            hideOnSelect = true;
+            visible = false;
+            setScale(0, 0);
+
+            shown = menu -> {
+                menu.ignoreInput = true;
+                menu.rebuild();
+                menu.actions(Actions.scaleTo(1, 1, 0.2f, Interp.pow3Out), new Action(){
+                    @Override
+                    public boolean act(float delta) {
+                        ((RadialMenu) target).ignoreInput = false;
+                        return true;
+                    }
+                });
+            };
+
+            hidden = menu -> {
+                menu.visible = true;
+                menu.actions(Actions.scaleTo(0, 0, 0.1f, Interp.pow3Out), Actions.hide());
+            };
+        }});
+        hudGroup.clicked(KeyCode.mouseRight, () -> {
+            if (menu.visible) {
+                menu.hide();
+            } else {
+                menu.setPosition(Core.input.mouseX(), Core.input.mouseY());
+                menu.show();
+            }
+        });
 
         hudGroup.fill(table -> {
             table.center().bottom();
             table.table(t -> {
-                mapOverlay = t;
-                t.add(new Element()).grow();
+                t.add(mapOverlay = new Element()).grow();
             }).grow();
 
             table.row();
 
-            table.table(mt -> {
-                mainTable = mt;
-                mt.background(Styles.black8);
-
-                mt.center().bottom();
-
-                mt.image().color(Pal.accent).colspan(1).height(4).growX().padBottom(5).visible(() -> figure != null).colspan(2).row();
-
-                mt.table(ct -> {
-                    creationTable = ct;
-                    ct.left();
-                }).left().bottom().growX().padBottom(5).visible(() -> figure != null);
-
-                mt.button(Icon.add, Styles.clearNonei, this::figureCreated).padBottom(5).center().width(100).growY().visible(() -> figure != null);
-
-                mt.row().image().color(Pal.accent).colspan(1).height(4).growX().padBottom(5).colspan(2).row();
-
-                mt.table(st -> {
-                    selectTable = st;
-
-                    st.defaults().center().size(64);
-
-                    buttons.clear();
-                    buttons.setMaxCheckCount(1);
-                    buttons.setMinCheckCount(0);
-                    FigureType.figureTypes.each(type -> {
-                        TextButton btn = new TextButton("", Styles.flatToggleMenut);
-                        btn.clearChildren();
-                        buttons.add(btn);
-
-                        btn.clicked(() -> {
-                            if (!btn.isChecked())
-                                unselectFigure();
-                            else
-                                figureSelected(type);
-                        });
-
-                        btn.center();
-                        btn.defaults().center().grow();
-                        type.ConstructSelectionButton(btn);
-
-                        st.add(btn);
-                    });
-                }).center().bottom().growX().height(64).colspan(2);
-            }).growX();
+            table.table(mt -> mainTable = mt).growX();
         });
 
+        build();
+    }
+
+    public void build() {
+        mainTable.reset();
+
+        mainTable.background(Styles.black8);
+
+        mainTable.center().bottom();
+
+        mainTable.image().color(Pal.accent).colspan(1).height(4).growX().padBottom(5).visible(() -> figure != null).colspan(2).row();
+
+        mainTable.table(ct -> {
+            creationTable = ct;
+            ct.left();
+        }).left().bottom().growX().padBottom(5).visible(() -> figure != null);
+
+        mainTable.button(Icon.add, Styles.clearNonei, () -> {
+            FigureType f = figure.type;
+            figureCreated();
+            if (Core.input.keyDown(KeyCode.shiftLeft) || Core.input.keyDown(KeyCode.shiftRight))
+                figureSelected(f);
+        }).padBottom(5).center().width(100).growY().visible(() -> figure != null);
+
+        mainTable.row().image().color(Pal.accent).colspan(1).height(4).growX().padBottom(5).colspan(2).row();
+
+        mainTable.table(st -> {
+            selectTable = st;
+
+            st.defaults().center().size(64);
+
+            buttons.clear();
+            buttons.setMaxCheckCount(1);
+            buttons.setMinCheckCount(0);
+            FigureType.figureTypes.each(type -> {
+                TextButton btn = new TextButton("", Styles.flatToggleMenut);
+                btn.clearChildren();
+                buttons.add(btn);
+
+                btn.clicked(() -> {
+                    if (!btn.isChecked())
+                        unselectFigure();
+                    else
+                        figureSelected(type);
+                });
+
+                btn.center();
+                btn.defaults().center().grow();
+                type.constructSelectionButton(btn);
+
+                st.add(btn);
+            });
+        }).center().bottom().growX().height(64).colspan(2);
     }
 
     /** Called on locked is changed. */
@@ -128,14 +190,12 @@ public class MPControl {
         Core.camera.position.add(Tmp.v1.setZero().add(Core.input.axis(Binding.move_x), Core.input.axis(Binding.move_y)).nor().scl((!Core.input.keyDown(Binding.boost) ? 15f : 45f) * Time.delta));
 
         if (figure != null) {
-            if (figure.created())
-                figureCreated();
-            else
-                figure.updateCreation(creationTable);
+            figure.updateCreation(creationTable);
         }
     }
 
     public void figureCreated() {
+        figure.created();
         MPCore.renderer.add(figure);
         unselectFigure();
         buttons.uncheckAll();
@@ -153,7 +213,7 @@ public class MPControl {
         unselectFigure();
 
         figure = newFigureType.create();
-        figure.onCreate(creationTable);
+        figure.constructCreationTable(creationTable);
         mapOverlay.addListener(figure);
     }
 }

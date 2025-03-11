@@ -2,10 +2,6 @@ package com.github.nekit508.mappainter.graphics.figure;
 
 import arc.Core;
 import arc.func.Prov;
-import arc.graphics.Color;
-import arc.graphics.g2d.Draw;
-import arc.graphics.g2d.Fill;
-import arc.input.KeyCode;
 import arc.math.geom.QuadTree;
 import arc.math.geom.Vec2;
 import arc.scene.event.InputEvent;
@@ -15,11 +11,11 @@ import arc.scene.ui.Button;
 import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
-import arc.util.*;
+import arc.util.Disposable;
+import arc.util.Nullable;
+import arc.util.Structs;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
-import mindustry.gen.Icon;
-import mindustry.ui.Styles;
 
 import java.lang.reflect.Constructor;
 
@@ -32,6 +28,8 @@ public abstract class FigureType {
 
     public @Nullable Class<?> subclass;
 
+    public Drawable icon;
+
     public FigureType(String name) {
         typeName = name;
 
@@ -39,6 +37,8 @@ public abstract class FigureType {
         figureTypes.add(this);
 
         initFigure();
+
+        load();
     }
 
     public <T extends Figure> T create() {
@@ -47,9 +47,12 @@ public abstract class FigureType {
         return out;
     }
 
-    public void ConstructSelectionButton(Button button) {
-        Log.infoList(Core.atlas.find("map-painter-" + typeName));
-        button.image((Drawable) Core.atlas.getDrawable("map-painter-" + typeName)).tooltip(typeName);
+    public void load() {
+        icon = Core.atlas.getDrawable("map-painter-" + typeName);
+    }
+
+    public void constructSelectionButton(Button button) {
+        button.image(icon).tooltip(typeName);
     }
 
     protected void initFigure(){
@@ -92,85 +95,35 @@ public abstract class FigureType {
     public abstract class Figure extends InputListener implements QuadTree.QuadTreeObject, Disposable {
         public FigureType type;
 
-        public abstract void onCreate(Table infoTable);
+        public void constructCreationTable(Table infoTable) {};
 
-        public abstract void updateCreation(Table table);
+        public void updateCreation(Table table) {};
 
-        public abstract void drawCreation();
+        public void drawCreation() {};
 
-        public abstract boolean created();
+        public void created() {}
 
         /** Should be called after creation and all params set. */
         public void init() {}
 
-        public abstract void draw();
+        public void draw() {};
 
         // TODO
         /** Draw figure on the minimap. */
         public void drawMinimap() {}
 
-        public abstract void read(Reads reads);
+        public void read(Reads reads) {};
 
-        public abstract void write(Writes writes);
+        public void write(Writes writes) {};
 
         @Override
         public void dispose() {}
-    }
 
-    // TODO
-    public static class Point extends Table {
-        public Vec2 position = new Vec2();
-        public String name;
-
-        public Mover mover;
-
-        public Point(String n) {
-            name = n;
-            addCaptureListener(mover = new Mover());
-            image((Drawable) Core.atlas.getDrawable("circle")).fill();
-        }
-
-        public void build(Table table) {
-            table.button(name, Icon.add, Styles.flatt, () -> {
-
-            }).growX().height(32);
-        }
-
-        public void draw() {
-            Draw.color(Color.red);
-            Fill.circle(position.x, position.y, 2.5f);
-        }
-
-        public void addToMap(Table mapOverlay) {
-            mapOverlay.add(this);
-        }
-
-        public class Mover extends InputListener {
-            public float lastX, lastY;
-
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button){
-                Point.this.toFront();
-
-                Vec2 pos = event.listenerActor.localToStageCoordinates(Tmp.v1.set(x, y));
-                lastX = pos.x;
-                lastY = pos.y;
-                return true;
-            }
-
-            @Override
-            public void touchDragged(InputEvent event, float x, float y, int pointer){
-                Vec2 pos = event.listenerActor.localToStageCoordinates(Tmp.v1.set(x, y));
-
-                Point.this.moveBy(pos.x - lastX, pos.y - lastY);
-                lastX = pos.x;
-                lastY = pos.y;
-            }
-
-            @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, KeyCode button){
-
-            }
+        public Vec2 tmpVec = new Vec2();
+        public Vec2 localToWorldCoords(InputEvent event, float x, float y) {
+            Vec2 coords = Core.scene.stageToScreenCoordinates(event.listenerActor.localToStageCoordinates(tmpVec.set(x, y)));
+            coords.y = Core.scene.getHeight() - coords.y;
+            return Core.camera.unproject(coords);
         }
     }
 }

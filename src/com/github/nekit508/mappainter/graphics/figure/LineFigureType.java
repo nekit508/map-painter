@@ -1,13 +1,12 @@
 package com.github.nekit508.mappainter.graphics.figure;
 
-import arc.Core;
 import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.Lines;
 import arc.input.KeyCode;
 import arc.math.geom.Rect;
 import arc.math.geom.Vec2;
-import arc.scene.ui.layout.Table;
+import arc.scene.event.InputEvent;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
 
@@ -18,33 +17,13 @@ public class LineFigureType extends FigureType {
 
     public class LineFigure extends Figure {
         public Vec2 start = new Vec2(-1, -1), end = new Vec2(-1, -1);
-        public Point startp = new Point("start"), endp = new Point("end");
-
-        @Override
-        public void onCreate(Table infoTable) {
-            startp.build(infoTable);
-
-            infoTable.row();
-
-            endp.build(infoTable);
-        }
-
-        @Override
-        public void updateCreation(Table table) {
-            if (Core.input.keyTap(KeyCode.mouseLeft)) {
-                (start.x == -1 ? start : end).set(Core.input.mouseWorld());
-            }
-        }
 
         @Override
         public void drawCreation() {
-            startp.draw();
-            endp.draw();
-        }
+            if (start.x == -1 || end.x == -1)
+                return;
 
-        @Override
-        public boolean created() {
-            return false;
+            draw();
         }
 
         @Override
@@ -79,6 +58,32 @@ public class LineFigureType extends FigureType {
             float maxY = Math.max(start.y, end.y);
 
             rect.set(minX, minY, maxX - minX, maxY - minY);
+        }
+
+        @Override
+        public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button) {
+            if (button != KeyCode.mouseLeft)
+                return false;
+
+            Vec2 coords = localToWorldCoords(event, x, y);
+            start.set(coords.x, coords.y);
+            end.set(-1, -1);
+            return true;
+        }
+
+        @Override
+        public void touchDragged(InputEvent event, float x, float y, int pointer) {
+            Vec2 coords = localToWorldCoords(event, x, y);
+            end.set(coords.x, coords.y);
+        }
+
+        @Override
+        public void touchUp(InputEvent event, float x, float y, int pointer, KeyCode button) {
+            if (button != KeyCode.mouseLeft)
+                return;
+
+            if (end.x == -1)
+                start.set(-1, -1);
         }
     }
 }
