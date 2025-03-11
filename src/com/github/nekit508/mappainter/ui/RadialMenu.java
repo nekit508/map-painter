@@ -66,7 +66,7 @@ public class RadialMenu extends Group {
                     tmpColor.set(0, 0, 0, 0.7f);
 
                 if (btn.checked)
-                    tmpColor.add(0.2f, 0.2f, 0.2f);
+                    tmpColor.add(0.3f, 0.3f, 0.3f, 0.2f);
 
                 drawSegment(segmentSize * i, segmentSize * i + segmentSize, tmpColor, btn.icon);
             }

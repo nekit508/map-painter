@@ -3,9 +3,7 @@ package com.github.nekit508.mappainter.core;
 import com.github.nekit508.mappainter.control.MPControl;
 import com.github.nekit508.mappainter.files.InternalFileTree;
 import com.github.nekit508.mappainter.graphics.MPRenderer;
-import com.github.nekit508.mappainter.graphics.figure.ArrowFigureType;
-import com.github.nekit508.mappainter.graphics.figure.HandWrittenFigureType;
-import com.github.nekit508.mappainter.graphics.figure.LineFigureType;
+import com.github.nekit508.mappainter.graphics.figure.*;
 import com.github.nekit508.mappainter.io.MPCustomChunk;
 import mindustry.io.SaveVersion;
 import mindustry.mod.Mod;
@@ -27,9 +25,12 @@ public class MPCore extends Mod {
         renderer = new MPRenderer();
         control = new MPControl();
 
+
         new LineFigureType("line");
-        new HandWrittenFigureType("hand-written-line");
-        new ArrowFigureType("arrow-line");
+        new HandWrittenFigureType("hand-written");
+        new ArrowFigureType("arrow");
+        new ImageFigureType("image");
+        new CircleFigureType("circle");
 
         control.init();
     }
