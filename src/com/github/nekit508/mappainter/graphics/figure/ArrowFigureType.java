@@ -11,13 +11,15 @@ public class ArrowFigureType extends LineFigureType {
     }
 
     public class ArrowFigure extends LineFigure {
+        public float arrowAngle = 145;
+        
         @Override
         public void draw() {
             super.draw();
             float angle = tmpVec.set(end).sub(start).angle();
 
-            Lines.line(end.x, end.y, end.x + Mathf.cosDeg(angle + 120) * arrowLen, end.y + Mathf.sinDeg(angle + 120) * arrowLen);
-            Lines.line(end.x, end.y, end.x + Mathf.cosDeg(angle - 120) * arrowLen, end.y + Mathf.sinDeg(angle - 120) * arrowLen);
+            Lines.line(end.x, end.y, end.x + Mathf.cosDeg(angle + arrowAngle) * arrowLen, end.y + Mathf.sinDeg(angle + arrowAngle) * arrowLen);
+            Lines.line(end.x, end.y, end.x + Mathf.cosDeg(angle - arrowAngle) * arrowLen, end.y + Mathf.sinDeg(angle - arrowAngle) * arrowLen);
         }
     }
 }

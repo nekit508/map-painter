@@ -54,9 +54,21 @@ public class MPControl {
         hudGroup.visible(() -> !locked);
         Core.scene.add(hudGroup);
 
+        hudGroup.fill(table -> {
+            table.center().bottom();
+            table.table(t -> {
+                t.add(mapOverlay = new Element()).grow();
+            }).grow();
+
+            table.row();
+
+            table.table(mt -> mainTable = mt).growX();
+        });
+
         hudGroup.addChild(menu = new RadialMenu(menu -> {
             FigureType.figureTypes.each(type -> {
                 menu.addButton(new RadialMenu.RadialMenuButton(){{
+                    hideOnClick = true;
                     icon = type.icon;
                     checked = figure != null && type == figure.type;
                     listener = btn -> {
@@ -67,11 +79,24 @@ public class MPControl {
                             figureSelected(type);
                         }
                         checked = !checked;
+                        btn.parent.rebuild();
                     };
                 }});
             });
+
+            if (figure != null)
+                menu.center(new RadialMenu.RadialMenuButton(){{
+                    icon = Icon.add;
+                    checked = false;
+                    hideOnClick = false;
+                    listener = btn -> {
+                        figureCreated();
+                        btn.parent.rebuild();
+                    };
+                }});
         }){{
-            hideOnSelect = true;
+            setFillParent(true);
+
             visible = false;
             setScale(0, 0);
 
@@ -99,17 +124,6 @@ public class MPControl {
                 menu.setPosition(Core.input.mouseX(), Core.input.mouseY());
                 menu.show();
             }
-        });
-
-        hudGroup.fill(table -> {
-            table.center().bottom();
-            table.table(t -> {
-                t.add(mapOverlay = new Element()).grow();
-            }).grow();
-
-            table.row();
-
-            table.table(mt -> mainTable = mt).growX();
         });
 
         build();
@@ -195,6 +209,8 @@ public class MPControl {
     }
 
     public void figureCreated() {
+        if (figure == null)
+            return;
         figure.created();
         MPCore.renderer.add(figure);
         unselectFigure();
