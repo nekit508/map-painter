@@ -18,7 +18,7 @@ import com.github.nekit508.mappainter.graphics.g2d.MPDraw;
 
 public class RadialMenu extends Element {
     public float drawStep = 6;
-    public float rInner = 100, rOuter = 150;
+    public float rInner = 90, rOuter = 170, rCenter = 50;
     public float iconSize = 32;
     public TextureRegion reg;
 
@@ -35,6 +35,7 @@ public class RadialMenu extends Element {
     public Color tmpColor = new Color();
 
     protected RadialMenuButton lastMouseOver = null;
+    protected RadialMenuButton touchedButton = null;
 
     public RadialMenu(Cons<RadialMenu> buttonsConstructor) {
         this.buttonsConstructor = buttonsConstructor;
@@ -47,22 +48,22 @@ public class RadialMenu extends Element {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button) {
                 if (targetKeycode != button || ignoreInput) return false;
 
-                RadialMenuButton btn = getSelectedButton(tmpVec2.set(x, y));
+                RadialMenuButton btn = getHitButton(tmpVec2.set(x, y));
                 if (btn == null) return false;
-
                 btn.clicked = true;
+                touchedButton = btn;
 
                 return true;
             }
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, KeyCode button) {
-                if (targetKeycode == button || ignoreInput) {
-                    RadialMenuButton btn = getSelectedButton(tmpVec2.set(x, y));
-                    btn.clicked = false;
-                    btn.clicked();
-                    if (btn.hideOnClick)
+                if (touchedButton != null && (targetKeycode == button || ignoreInput)) {
+                    touchedButton.clicked = false;
+                    touchedButton.clicked();
+                    if (touchedButton.hideOnClick)
                         hide();
+                    touchedButton = null;
                 }
             }
         });
@@ -75,11 +76,12 @@ public class RadialMenu extends Element {
         if (centerButton != null) {
             Draw.color(centerButton.getColor());
             Core.atlas.getDrawable("circle").draw(
-                    x - rInner * scaleX,
-                    y - rInner * scaleY,
-                    rInner * 2 * scaleX,
-                    rInner * 2 * scaleY
+                    x - rCenter * scaleX,
+                    y - rCenter * scaleY,
+                    rCenter * 2 * scaleX,
+                    rCenter * 2 * scaleY
             );
+            Draw.color(Color.white);
             centerButton.icon.draw(
                     iconSize / -2 * scaleX + x,
                     iconSize / -2 * scaleY + y,
@@ -151,7 +153,7 @@ public class RadialMenu extends Element {
 
     @Override
     public Element hit(float x, float y, boolean touchable) {
-        RadialMenuButton btn = getSelectedButton(tmpVec2.set(x, y));
+        RadialMenuButton btn = getHitButton(tmpVec2.set(x, y));
 
         if (lastMouseOver != null && lastMouseOver != btn)
             lastMouseOver.mouseOver = false;
@@ -162,7 +164,7 @@ public class RadialMenu extends Element {
         return btn != null ? this : null;
     }
 
-    public RadialMenuButton getSelectedButton(Vec2 pos) {
+    public RadialMenuButton getHitButton(Vec2 pos) {
         float segmentSize = 360f / buttons.size;
 
         float d2 = pos.len2();
@@ -170,7 +172,7 @@ public class RadialMenu extends Element {
         if (!buttons.isEmpty() && d2 > rInner * rInner && d2 < rOuter * rOuter) {
             float angle = tmpVec2.angle();
             return buttons.get(Mathf.floor(angle / segmentSize));
-        } else if (d2 < rInner * rInner) {
+        } else if (d2 < rCenter * rCenter) {
             return centerButton;
         } else
             return null;

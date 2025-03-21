@@ -23,7 +23,7 @@ public abstract class FigureType {
     public static Seq<FigureType> figureTypes = new Seq<>();
     public static ObjectMap<String, FigureType> figureTypesMap = new ObjectMap<>();
 
-    public String typeName;
+    public String name;
     public Prov<? extends Figure> figureProv;
 
     public @Nullable Class<?> subclass;
@@ -31,9 +31,9 @@ public abstract class FigureType {
     public Drawable icon;
 
     public FigureType(String name) {
-        typeName = name;
+        this.name = name;
 
-        figureTypesMap.put(typeName, this);
+        figureTypesMap.put(this.name, this);
         figureTypes.add(this);
 
         initFigure();
@@ -48,11 +48,11 @@ public abstract class FigureType {
     }
 
     public void load() {
-        icon = Core.atlas.getDrawable("map-painter-" + typeName);
+        icon = Core.atlas.getDrawable("map-painter-" + name);
     }
 
     public void constructSelectionButton(Button button) {
-        button.image(icon).tooltip(typeName);
+        button.image(icon).tooltip(name);
     }
 
     protected void initFigure(){

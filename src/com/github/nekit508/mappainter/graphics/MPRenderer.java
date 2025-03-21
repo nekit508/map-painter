@@ -18,7 +18,6 @@ import mindustry.graphics.Layer;
 
 public class MPRenderer {
     public QuadTree<FigureType.Figure> figuresTree;
-    public Seq<FigureType.Figure> figuresSeq;
 
     public MPRenderer() {
         Events.on(EventType.WorldLoadEvent.class, e -> {

@@ -86,7 +86,7 @@ public class MPControl {
 
             if (figure != null)
                 menu.center(new RadialMenu.RadialMenuButton(){{
-                    icon = Icon.add;
+                    icon = Core.atlas.getDrawable("map-painter-add");
                     checked = false;
                     hideOnClick = false;
                     listener = btn -> {
