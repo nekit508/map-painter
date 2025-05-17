@@ -9,8 +9,6 @@ import arc.scene.event.InputListener;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Button;
 import arc.scene.ui.layout.Table;
-import arc.struct.ObjectMap;
-import arc.struct.Seq;
 import arc.util.Disposable;
 import arc.util.Nullable;
 import arc.util.Structs;
@@ -20,9 +18,6 @@ import arc.util.io.Writes;
 import java.lang.reflect.Constructor;
 
 public abstract class FigureType {
-    public static Seq<FigureType> figureTypes = new Seq<>();
-    public static ObjectMap<String, FigureType> figureTypesMap = new ObjectMap<>();
-
     public String name;
     public Prov<? extends Figure> figureProv;
 
@@ -33,12 +28,7 @@ public abstract class FigureType {
     public FigureType(String name) {
         this.name = name;
 
-        figureTypesMap.put(this.name, this);
-        figureTypes.add(this);
-
         initFigure();
-
-        load();
     }
 
     public <T extends Figure> T create() {
@@ -95,26 +85,26 @@ public abstract class FigureType {
     public abstract class Figure extends InputListener implements QuadTree.QuadTreeObject, Disposable {
         public FigureType type;
 
-        public void constructCreationTable(Table infoTable) {};
+        public void constructCreationTable(Table infoTable) {}
 
-        public void updateCreation(Table table) {};
+        public void updateCreation(Table table) {}
 
-        public void drawCreation() {};
+        public void drawCreation() {}
 
         public void created() {}
 
         /** Should be called after creation and all params set. */
         public void init() {}
 
-        public void draw() {};
+        public void draw() {}
 
         // TODO
         /** Draw figure on the minimap. */
         public void drawMinimap() {}
 
-        public void read(Reads reads) {};
+        public void read(Reads reads) {}
 
-        public void write(Writes writes) {};
+        public void write(Writes writes) {}
 
         @Override
         public void dispose() {}

@@ -1,4 +1,4 @@
-package com.github.nekit508.mappainter.ui;
+package com.github.nekit508.mappainter.ui.scene;
 
 import arc.Core;
 import arc.func.Cons;

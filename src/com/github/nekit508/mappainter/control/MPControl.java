@@ -16,7 +16,7 @@ import arc.util.Time;
 import arc.util.Tmp;
 import com.github.nekit508.mappainter.core.MPCore;
 import com.github.nekit508.mappainter.graphics.figure.FigureType;
-import com.github.nekit508.mappainter.ui.RadialMenu;
+import com.github.nekit508.mappainter.ui.scene.RadialMenu;
 import mindustry.Vars;
 import mindustry.game.EventType;
 import mindustry.gen.Icon;
@@ -66,7 +66,7 @@ public class MPControl {
         });
 
         hudGroup.addChild(menu = new RadialMenu(menu -> {
-            FigureType.figureTypes.each(type -> {
+            MPCore.figuresManager.figureTypes.each(type -> {
                 menu.addButton(new RadialMenu.RadialMenuButton(){{
                     hideOnClick = true;
                     icon = type.icon;
@@ -160,7 +160,7 @@ public class MPControl {
             buttons.clear();
             buttons.setMaxCheckCount(1);
             buttons.setMinCheckCount(0);
-            FigureType.figureTypes.each(type -> {
+            MPCore.figuresManager.figureTypes.each(type -> {
                 TextButton btn = new TextButton("", Styles.flatToggleMenut);
                 btn.clearChildren();
                 buttons.add(btn);
@@ -212,7 +212,7 @@ public class MPControl {
         if (figure == null)
             return;
         figure.created();
-        MPCore.renderer.add(figure);
+        MPCore.figuresManager.addFigure(figure);
         unselectFigure();
         buttons.uncheckAll();
     }

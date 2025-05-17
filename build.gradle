@@ -1,24 +1,44 @@
-plugins{
-    id "java"
+plugins {
     id "com.github.nekit508.mindustry-mod-plugin" version "$nmpVersion" apply true
 }
 
-project.repositories {
-    mavenCentral()
-    mavenLocal()
-    maven { url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
-    maven { url "https://www.jitpack.io" }
+allprojects.each {
+    it.apply plugin: "java"
+    it.apply plugin: "idea"
+
+    it.repositories {
+        mavenCentral()
+        mavenLocal()
+        maven { url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
+        maven { url "https://www.jitpack.io" }
+    }
+
+    it.sourceSets.main.java.srcDirs = ["src", "gen"]
+    it.sourceSets.main.resources.srcDirs = ["res"]
 }
 
-group = "com.github.nekit508"
-version = "0.0.1"
+version = modVersion
+group = modGroup
 
-sourceSets.main.java.srcDirs = ["src", "gen"]
-sourceSets.main.resources.srcDirs = ["res"]
+nmp.core project, "core"
 
-nmp.genericInit(mindustryVersion)
+core.configure {
+    genericInit()
 
-dependencies {
-    //compileOnly "com.github.Zelaux.MindustryModCore:annotations:"
-    //annotationProcessor "com.github.Zelaux.MindustryModCore:annotations:v2.0.2"
+    core.configureTasks {
+        nmpGenerateModInfo {
+            modMain = "com.github.nekit508.mappainter.core.MPCore"
+
+            modAuthor = "nekit508"
+            modDisplayName = "Map painter"
+        }
+    }
+}
+
+core.settings {
+    modName.set project.name
+    modGroup.set project.group as String
+    modVersion.set project.version as String
+    mindustryVersion.set prop("mindustryVersion") as String
+    generateModInfo.set true
 }

@@ -10,7 +10,10 @@ import arc.scene.event.InputEvent;
 import arc.scene.ui.Slider;
 import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
+import arc.util.io.Reads;
+import arc.util.io.Writes;
 import com.github.nekit508.mappainter.graphics.Drawe;
+import com.github.nekit508.mindustry.annotations.ioproc.IOProc;
 import mindustry.Vars;
 import mindustry.ui.Styles;
 
@@ -20,10 +23,14 @@ public class HandWrittenFigureType extends FigureType {
     }
 
     public class HandWrittenFigure extends Figure {
+        @IOProc.IOField
         public float minx = Vars.world.unitWidth(), miny = Vars.world.unitHeight(), maxx = 0, maxy = 0;
+        @IOProc.IOField
         public Seq<Vec2> points = new Seq<>();
 
+        @IOProc.IOField
         public Color linesColor = Color.red;
+        @IOProc.IOField
         public float linesStroke = 5;
 
         @Override
@@ -86,6 +93,16 @@ public class HandWrittenFigureType extends FigureType {
         @Override
         public void touchUp(InputEvent event, float x, float y, int pointer, KeyCode button) {
             points.add((Vec2) null);
+        }
+
+        @Override
+        public void write(Writes writes) {
+            super.write(writes);
+        }
+
+        @Override
+        public void read(Reads reads) {
+            super.read(reads);
         }
     }
 }

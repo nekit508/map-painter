@@ -1,0 +1,9 @@
+{
+    "main": "com.github.nekit508.mappainter.core.MPCore",
+    "name": "map-painter",
+    "version": "v0.2.0",
+    "minGameVersion": "146",
+    "displayName": "Map painter",
+    "author": "nekit508",
+    "java": true
+}

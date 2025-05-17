@@ -9,6 +9,7 @@ import arc.math.geom.Vec2;
 import arc.scene.event.InputEvent;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
+import com.github.nekit508.mindustry.annotations.ioproc.IOProc;
 
 public class LineFigureType extends FigureType {
     public LineFigureType(String name) {
