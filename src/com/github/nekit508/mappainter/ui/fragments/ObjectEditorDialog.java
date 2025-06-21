@@ -1,4 +1,4 @@
-package com.github.nekit508.mappainter.ui.fragmants;
+package com.github.nekit508.mappainter.ui.fragments;
 
 import arc.Core;
 import arc.func.Prov;

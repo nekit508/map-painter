@@ -27,7 +27,19 @@ anno.configure {
                     "--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
                     "--add-exports=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED",
                     "--add-exports=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
-                    "--add-exports=java.base/sun.reflect.annotation=ALL-UNNAMED"
+                    "--add-exports=java.base/sun.reflect.annotation=ALL-UNNAMED",
+                    "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+                    "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+                    "--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+                    "--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+                    "--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+                    "--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+                    "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+                    "--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+                    "--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+                    "--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED",
+                    "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
+                    "--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED"
             ]
 
             doFirst {
@@ -38,5 +50,7 @@ anno.configure {
 }
 
 dependencies {
-    implementation("com.palantir.javapoet:javapoet:0.7.0")
+    implementation "com.palantir.javapoet:javapoet:0.7.0"
+    implementation "com.github.javaparser:javaparser-core:3.27.0"
+    implementation nmp.arcDependency(mindustryVersion)
 }

@@ -1,6 +1,6 @@
 {
   "build": {
-    "useAndroid": true,
+    "useAndroid": false,
     "sdkRoot": "D:\\soft\\android-sdk"
   },
   "copy": [

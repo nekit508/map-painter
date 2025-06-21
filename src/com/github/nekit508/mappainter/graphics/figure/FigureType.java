@@ -75,7 +75,7 @@ public abstract class FigureType {
         }
 
         if(figureProv == null){
-            throw new RuntimeException("Figure not found.");
+            throw new RuntimeException("Figure not found in " + getClass() + ".");
         }
     }
 

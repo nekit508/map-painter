@@ -10,10 +10,9 @@ import arc.scene.event.InputEvent;
 import arc.scene.ui.Slider;
 import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
-import arc.util.io.Reads;
-import arc.util.io.Writes;
+import com.github.nekit508.annotations.ioproc.IO;
+import com.github.nekit508.annotations.ioproc.IOAnnotations;
 import com.github.nekit508.mappainter.graphics.Drawe;
-import com.github.nekit508.mindustry.annotations.ioproc.IOProc;
 import mindustry.Vars;
 import mindustry.ui.Styles;
 
@@ -22,15 +21,15 @@ public class HandWrittenFigureType extends FigureType {
         super(name);
     }
 
-    public class HandWrittenFigure extends Figure {
-        @IOProc.IOField
+    public class HandWrittenFigure extends Figure implements IO {
+        @IOAnnotations.GenObject.Gen
         public float minx = Vars.world.unitWidth(), miny = Vars.world.unitHeight(), maxx = 0, maxy = 0;
-        @IOProc.IOField
+
+        @IOAnnotations.GenObject.Gen
         public Seq<Vec2> points = new Seq<>();
 
-        @IOProc.IOField
         public Color linesColor = Color.red;
-        @IOProc.IOField
+        @IOAnnotations.GenObject.Gen
         public float linesStroke = 5;
 
         @Override
@@ -93,16 +92,6 @@ public class HandWrittenFigureType extends FigureType {
         @Override
         public void touchUp(InputEvent event, float x, float y, int pointer, KeyCode button) {
             points.add((Vec2) null);
-        }
-
-        @Override
-        public void write(Writes writes) {
-            super.write(writes);
-        }
-
-        @Override
-        public void read(Reads reads) {
-            super.read(reads);
         }
     }
 }

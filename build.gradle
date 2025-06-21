@@ -32,6 +32,12 @@ core.configure {
             modAuthor = "nekit508"
             modDisplayName = "Map painter"
         }
+
+        compileJava {
+            options.compilerArgs += [
+                    "-Acom.github.nekit508.annotations.ioproc.IOProc.logIOMethods=true"
+            ]
+        }
     }
 }
 
