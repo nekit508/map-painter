@@ -1,6 +1,6 @@
 package com.github.nekit508.mappainter.ui;
 
-import com.github.nekit508.mappainter.ui.fragments.ObjectEditorDialog;
+import com.github.nekit508.mappainter.ui.dialogs.ObjectEditorDialog;
 
 public class MPUI {
     public static ObjectEditorDialog objectEditorFragment;

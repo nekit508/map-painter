@@ -1,22 +1,22 @@
 package com.github.nekit508.mappainter.core;
 
-import arc.Core;
 import arc.util.Log;
 import com.github.nekit508.betterfloors.core.BetterFloorsCore;
 import com.github.nekit508.mappainter.control.MPControl;
 import com.github.nekit508.mappainter.files.InternalFileTree;
 import com.github.nekit508.mappainter.graphics.MPRenderer;
 import com.github.nekit508.mappainter.graphics.figure.*;
+import com.github.nekit508.mappainter.gui.InterpreterContext;
+import com.github.nekit508.mappainter.gui.compiletime.CompileTask;
+import com.github.nekit508.mappainter.gui.compiletime.FileCompileSource;
+import com.github.nekit508.mappainter.gui.exceptions.TaskException;
 import com.github.nekit508.mappainter.net.packets.MPPackets;
 import com.github.nekit508.mappainter.ui.MPUI;
-import mindustry.Vars;
 import mindustry.io.SaveVersion;
 import mindustry.mod.Mod;
 import mindustry.type.Item;
 
-import java.net.URLClassLoader;
-import java.nio.file.Paths;
-import java.util.jar.JarFile;
+import java.util.Objects;
 
 public class MPCore extends Mod {
     public static MPRenderer renderer;
@@ -35,35 +35,16 @@ public class MPCore extends Mod {
         figuresManager = new MPFiguresManager();
         SaveVersion.addCustomChunk("map-painter-figures-custom-chunk", figuresManager);
 
+        var context = new InterpreterContext();
+        files.child("gui").findAll(fi -> Objects.equals(fi.extension(), "gui")).map(fi -> (CompileTask<?>) context.getCompileTaskFor(new FileCompileSource(fi))).each(task -> {
+            try {
+                task.run();
+            } catch (TaskException e) {
+                Log.err(e);
+            }
+        });
+
         MPPackets.init();
-
-        if (System.getProperty("com-github-nekit508-mp-loaded", "false").equals("false") && false) {
-            var thread = new Thread(new ThreadGroup(Thread.currentThread().getThreadGroup().getParent(), "New main group"), () -> {
-                try {
-                    System.setProperty("loaded", "true");
-                    Thread.sleep(5000);
-
-                    var url = Vars.class.getProtectionDomain().getCodeSource().getLocation();
-                    var jar = new JarFile(Paths.get(url.toURI()).toString());
-                    var mainClass = jar.getManifest().getMainAttributes().getValue("Main-Class");
-
-                    Log.info(mainClass);
-
-                    var loader = new URLClassLoader(new java.net.URL[]{url});
-                    var method = loader.loadClass(mainClass).getMethod("main", String[].class);
-                    method.invoke(null, (Object) new String[0]);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
-
-            thread.setDaemon(false);
-            thread.setName("New main thread");
-            thread.start();
-
-            Thread.currentThread().getThreadGroup().interrupt();
-            Core.app.exit();
-        }
     }
 
     @Override

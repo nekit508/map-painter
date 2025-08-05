@@ -10,7 +10,6 @@ import arc.scene.style.Drawable;
 import arc.scene.ui.Button;
 import arc.scene.ui.layout.Table;
 import arc.util.Disposable;
-import arc.util.Nullable;
 import arc.util.Structs;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
@@ -20,8 +19,6 @@ import java.lang.reflect.Constructor;
 public abstract class FigureType {
     public String name;
     public Prov<? extends Figure> figureProv;
-
-    public @Nullable Class<?> subclass;
 
     public Drawable icon;
 
@@ -46,23 +43,20 @@ public abstract class FigureType {
     }
 
     protected void initFigure(){
-        try{
+        try {
             Class<?> current = getClass();
 
-            if(current.isAnonymousClass()){
+            if (current.isAnonymousClass())
                 current = current.getSuperclass();
-            }
-
-            subclass = current;
 
             while(figureProv == null && FigureType.class.isAssignableFrom(current)){
                 Class<?> type = Structs.find(current.getDeclaredClasses(), t -> Figure.class.isAssignableFrom(t) && !t.isInterface());
                 if(type != null) {
                     Constructor<? extends Figure> cons = (Constructor<? extends Figure>) type.getDeclaredConstructor(type.getDeclaringClass());
                     figureProv = () -> {
-                        try{
+                        try {
                             return cons.newInstance(this);
-                        }catch(Exception e){
+                        } catch(Exception e) {
                             throw new RuntimeException(e);
                         }
                     };
@@ -71,7 +65,8 @@ public abstract class FigureType {
                 current = current.getSuperclass();
             }
 
-        }catch(Throwable ignored){
+        } catch(Throwable exception) {
+            throw new RuntimeException(exception);
         }
 
         if(figureProv == null){

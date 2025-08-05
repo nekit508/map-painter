@@ -1,0 +1,14 @@
+func create {
+    defaults {
+        top()
+        left()
+    }
+
+    label ("name") {
+        setText("Yeah, it is fucking working!!")
+
+        setWidth(125f)
+    } [ right() left ]
+
+    setFillParent(true)
+}

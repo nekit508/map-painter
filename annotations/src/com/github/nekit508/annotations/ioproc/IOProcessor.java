@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// @AnnotationProcesso
+// @AnnotationProcessor
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @NSupportedAnnotationTypes({
         IOAnnotations.GenObject.class,
@@ -58,7 +58,8 @@ public class IOProcessor extends BaseProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         super.process(annotations, roundEnv);
         processIOProviders();
-        processIOUniProviders();
+        // TODO fsdafasdf
+        //processIOUniProviders();
         processIOGen();
         return false;
     }
@@ -213,7 +214,7 @@ public class IOProcessor extends BaseProcessor {
             var jcParams = method.getParameters();
 
             var stream = jcParams.get(0);
-            var obj = t != 2 ? jcParams.get(1) : null;
+            var obj = t != 0 ? jcParams.get(1) : null;
 
             if (t == 0) { // write
 
@@ -280,10 +281,16 @@ public class IOProcessor extends BaseProcessor {
                     utils.printError(((JCTree.JCMethodDecl) e).sym, "io dummy methods must not be defined");
             });
 
-            typeTree.implementing = utils.listModified(typeTree.implementing, l ->
-                    l.removeIf(e ->
-                            ((JCTree.JCIdent) e).sym.type.equals(this.elements.getTypeElement("com.github.nekit508.annotations.ioproc.IO").asType())
-                    )
+            typeTree.implementing = utils.listModified(typeTree.implementing, l -> {
+                        l.removeIf(e -> {
+                            utils.printNote(
+                                    ((JCTree.JCIdent) e).sym.type,
+                                    this.elements.getTypeElement("com.github.nekit508.annotations.ioproc.IO").asType(),
+                                    ((JCTree.JCIdent) e).sym.type.equals(this.elements.getTypeElement("com.github.nekit508.annotations.ioproc.IO").asType())
+                            );
+                            return ((JCTree.JCIdent) e).sym.type.equals(this.elements.getTypeElement("com.github.nekit508.annotations.ioproc.IO").asType());
+                        });
+                    }
             );
 
             typeTree.defs = utils.listModified(typeTree.defs, l -> {
