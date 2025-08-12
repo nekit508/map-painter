@@ -66,7 +66,7 @@ public abstract class TreeAnalyzer<T extends Context> {
         depthStack.pop();
     }
 
-    public <T extends Tree> T as(Tree tree) {
-        return (T) tree;
+    public <O extends Tree> O as(Tree tree) {
+        return (O) tree;
     }
 }

@@ -9,7 +9,6 @@ import mindustry.game.EventType;
 import mindustry.graphics.Layer;
 
 public class MPRenderer {
-
     public MPRenderer() {
         Events.run(EventType.Trigger.drawOver, () -> {
             if (Vars.state.isGame())
@@ -21,8 +20,8 @@ public class MPRenderer {
         Draw.reset();
         Draw.z(Layer.fogOfWar + 5);
 
-        if (MPCore.control.figure != null)
-            MPCore.control.figure.drawCreation();
+        if (MPCore.control.figuresControl.figure != null)
+            MPCore.control.figuresControl.figure.drawCreation();
 
         MPCore.figuresManager.figures.each(FigureType.Figure::draw);
 

@@ -17,4 +17,9 @@ public class Pos {
     public Pos copy() {
         return new Pos(line, pos);
     }
+
+    public void set(int line, int pos) {
+        this.line = line;
+        this.pos = pos;
+    }
 }

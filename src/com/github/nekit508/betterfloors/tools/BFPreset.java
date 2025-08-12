@@ -68,9 +68,9 @@ public class BFPreset {
         }
 
         try (OutputStream s = fi.write()) {
-            OutputStreamWriter output = new OutputStreamWriter(s);;
+            OutputStreamWriter output = new OutputStreamWriter(s);
 
-            output.append("file format version " + version + "\n");
+            output.append("file format version ").append(String.valueOf(version)).append("\n");
             output.append("#hexcolor - floor-name\n");
 
             for (ObjectMap.Entry<Color, Floor> entry : floors)

@@ -13,7 +13,7 @@ public class InterpreterCompileTask extends CompileTask<InterpreterContext> {
     @Override
     public void run() throws TaskException {
         try {
-            var unit = context.getParser(context.getTokenizer(compileSource.getInputStream())).parseCompileSource();
+            var unit = context.getParser(context.getLexer(compileSource.getInputStream())).parseCompileSource();
             var analyzers = context.getAnalyzers();
             analyzers.each(unit::accept);
             var executables = context.getCompiler().compile(unit);

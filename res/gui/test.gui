@@ -1,14 +1,18 @@
-func create {
-    defaults {
+func create #table {
+    default {
         top()
         left()
     }
 
-    label ("name") {
+    label #label {
         setText("Yeah, it is fucking working!!")
 
         setWidth(125f)
     } [ right() left ]
 
     setFillParent(true)
+}
+
+func main {
+    .create
 }

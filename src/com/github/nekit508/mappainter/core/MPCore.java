@@ -2,7 +2,10 @@ package com.github.nekit508.mappainter.core;
 
 import arc.util.Log;
 import com.github.nekit508.betterfloors.core.BetterFloorsCore;
+import com.github.nekit508.mappainter.content.MPFx;
 import com.github.nekit508.mappainter.control.MPControl;
+import com.github.nekit508.mappainter.control.keys.MPAxisBuildings;
+import com.github.nekit508.mappainter.control.keys.MPKeyboardBindings;
 import com.github.nekit508.mappainter.files.InternalFileTree;
 import com.github.nekit508.mappainter.graphics.MPRenderer;
 import com.github.nekit508.mappainter.graphics.figure.*;
@@ -28,7 +31,11 @@ public class MPCore extends Mod {
     public static BetterFloorsCore betterFloorsCore;
     public static boolean loadBetterFloors = false;
 
+    public static MPCore instance;
+
     public MPCore() {
+        instance = this;
+
         if (loadBetterFloors)
             betterFloorsCore = new BetterFloorsCore();
 
@@ -45,12 +52,16 @@ public class MPCore extends Mod {
         });
 
         MPPackets.init();
+
+        control = new MPControl();
     }
 
     @Override
     public void loadContent() {
         if (loadBetterFloors)
             betterFloorsCore.loadContent();
+
+        MPFx.load();
 
         figuresManager.addType(new LineFigureType("line"));
         figuresManager.addType(new HandWrittenFigureType("hand-written"));
@@ -77,8 +88,10 @@ public class MPCore extends Mod {
 
         MPUI.init();
 
+        MPUI.keybindsDialog.addKeybindings(MPKeyboardBindings.values());
+        MPUI.keybindsDialog.addKeybindings(MPAxisBuildings.values());
+
         renderer = new MPRenderer();
-        control = new MPControl();
 
         control.init();
     }

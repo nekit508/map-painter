@@ -35,8 +35,14 @@ core.configure {
 
         compileJava {
             options.compilerArgs += [
-                    "-Acom.github.nekit508.annotations.ioproc.IOProc.logIOMethods=true"
+                    "-Acom.github.nekit508.annotations.ioproc.IOProc.logIOMethods=false"
             ]
+        }
+    }
+
+    dependencies {
+        implementation ("com.github.nekit508:pl-compiler-framework:$plCompilerFramework") {
+            exclude group: "com.github.Anuken.Arc", module: "arc-core"
         }
     }
 }

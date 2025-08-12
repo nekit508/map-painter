@@ -69,6 +69,7 @@ public class InterpreterParser extends Parser<InterpreterContext> {
 
         elementDeclarationFeature = new ParserFeature<>("elementDecl", c -> {
             var method = c.parse(identFeature);
+            Tree.Ident name = null;
 
             var args = new Seq<Tree.Value>();
             if (c.probe(Token.Kind.L_PAREN)) {
@@ -90,7 +91,7 @@ public class InterpreterParser extends Parser<InterpreterContext> {
                 c.accept(Token.Kind.R_BRACKET);
             }
 
-            return new Tree.ElementDecl(Tree.Kind.ELEMENT_DECL, method, body, args, cellMethodExecutions);
+            return new Tree.ElementDecl(Tree.Kind.ELEMENT_DECL, method, body, args, cellMethodExecutions, name);
         });
 
         valueFeature = new ParserFeature<>("value", c -> {

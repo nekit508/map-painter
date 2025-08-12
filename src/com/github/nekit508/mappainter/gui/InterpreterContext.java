@@ -1,12 +1,14 @@
 package com.github.nekit508.mappainter.gui;
 
 import arc.struct.Seq;
-import com.github.nekit508.mappainter.gui.compiletime.Compiler;
 import com.github.nekit508.mappainter.gui.compiletime.*;
 import com.github.nekit508.mappainter.gui.runtime.Interpreter;
+import com.github.nekit508.mappainter.gui.utils.PosProvider;
+import com.github.nekit508.mappainter.gui.utils.PosProviderCharReusableStreamWrapper;
 import com.github.nekit508.mappainter.gui.utils.ReusableStream;
 
 @SuppressWarnings("unchecked")
+// TODO rewrite compiler and interpreter
 public class InterpreterContext extends Context {
     public Interpreter interpreter = new Interpreter(this);
 
@@ -16,8 +18,8 @@ public class InterpreterContext extends Context {
     }
 
     @Override
-    public <T extends Compiler<?>> T getCompiler() {
-        return (T) new InterpreterCompiler(this);
+    public InterpreterCompiler getCompiler() {
+        return  new InterpreterCompiler(this);
     }
 
     @Override
@@ -26,8 +28,8 @@ public class InterpreterContext extends Context {
     }
 
     @Override
-    public <T extends Tokenizer<?>> T getTokenizer(ReusableStream<Character> stream) {
-        return (T) new InterpreterTokenizer(stream, this);
+    public <T extends Lexer<?>> T getLexer(ReusableStream<Character> stream) {
+        return (T) new InterpreterLexer(stream, stream instanceof PosProvider prov ? prov : new PosProviderCharReusableStreamWrapper(stream), this);
     }
 
     @Override

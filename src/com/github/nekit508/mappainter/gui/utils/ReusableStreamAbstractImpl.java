@@ -26,12 +26,13 @@ public abstract class ReusableStreamAbstractImpl<T> implements ReusableStream<T>
 
     @Override
     public void redo() {
-        redo(1);
+        currentPos -= 1;
     }
 
     @Override
     public void redo(int num) {
-        currentPos -= num;
+        for (int i = 0; i < num; i++)
+            redo();
     }
 
     @Override

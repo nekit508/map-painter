@@ -169,7 +169,7 @@ public class ZipFi extends Fi {
     @Override
     public Fi parent(){
         //root
-        if(path.length() == 0) return null;
+        if(path.isEmpty()) return null;
 
         if(parent == null){
             parent = allDirectories.find(other -> isChild(this, other));

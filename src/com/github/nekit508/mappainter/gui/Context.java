@@ -24,7 +24,7 @@ public abstract class Context implements Disposable {
 
     public abstract <T extends Compiler<?>> T getCompiler();
     public abstract <T extends Parser<?>> T getParser(ReusableStream<Token> stream);
-    public abstract <T extends Tokenizer<?>> T getTokenizer(ReusableStream<Character> stream);
+    public abstract <T extends Lexer<?>> T getLexer(ReusableStream<Character> stream);
     public abstract <T extends TreeAnalyzer<?>> Seq<T> getAnalyzers();
 
     @Override

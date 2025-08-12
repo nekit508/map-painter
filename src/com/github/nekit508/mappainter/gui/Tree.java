@@ -8,7 +8,7 @@ public abstract class Tree {
         this.kind = kind;
     }
 
-    public abstract void accept(TreeAnalyzer analyzer);
+    public abstract void accept(TreeAnalyzer<?> analyzer);
 
     public static class Unit extends Tree {
         public Seq<FuncDecl> members;
@@ -19,7 +19,7 @@ public abstract class Tree {
         }
 
         @Override
-        public void accept(TreeAnalyzer analyzer) {
+        public void accept(TreeAnalyzer<?> analyzer) {
             analyzer.enter(this);
             members.each(t -> t.accept(analyzer));
             analyzer.unit(this);
@@ -36,7 +36,7 @@ public abstract class Tree {
         }
 
         @Override
-        public void accept(TreeAnalyzer analyzer) {
+        public void accept(TreeAnalyzer<?> analyzer) {
             analyzer.enter(this);
             analyzer.ident(this);
             analyzer.exit(this);
@@ -54,7 +54,7 @@ public abstract class Tree {
         }
 
         @Override
-        public void accept(TreeAnalyzer analyzer) {
+        public void accept(TreeAnalyzer<?> analyzer) {
             analyzer.enter(this);
 
             key.accept(analyzer);
@@ -75,7 +75,7 @@ public abstract class Tree {
         }
 
         @Override
-        public void accept(TreeAnalyzer analyzer) {
+        public void accept(TreeAnalyzer<?> analyzer) {
             analyzer.enter(this);
             members.each(t -> t.accept(analyzer));
             analyzer.elementBody(this);
@@ -88,17 +88,19 @@ public abstract class Tree {
         public Seq<Value> args;
         public ElementBody body;
         public Seq<MethodExec> cellMethodExecutions;
+        public Ident name;
 
-        public ElementDecl(Kind kind, Ident method, ElementBody body, Seq<Value> args, Seq<MethodExec> cellMethodExecutions) {
+        public ElementDecl(Kind kind, Ident method, ElementBody body, Seq<Value> args, Seq<MethodExec> cellMethodExecutions, Ident name) {
             super(kind);
             this.body = body;
             this.method = method;
             this.args = args;
             this.cellMethodExecutions = cellMethodExecutions;
+            this.name = name;
         }
 
         @Override
-        public void accept(TreeAnalyzer analyzer) {
+        public void accept(TreeAnalyzer<?> analyzer) {
             analyzer.enter(this);
             cellMethodExecutions.each(t -> t.accept(analyzer));
             args.each(a -> a.accept(analyzer));
@@ -119,7 +121,7 @@ public abstract class Tree {
         }
 
         @Override
-        public void accept(TreeAnalyzer analyzer) {
+        public void accept(TreeAnalyzer<?> analyzer) {
             analyzer.enter(this);
             methodExecs.each(t -> t.accept(analyzer));
 
@@ -143,7 +145,7 @@ public abstract class Tree {
         }
 
         @Override
-        public void accept(TreeAnalyzer analyzer) {
+        public void accept(TreeAnalyzer<?> analyzer) {
             analyzer.enter(this);
             analyzer.booleanValue(this);
             analyzer.exit(this);
@@ -159,7 +161,7 @@ public abstract class Tree {
         }
 
         @Override
-        public void accept(TreeAnalyzer analyzer) {
+        public void accept(TreeAnalyzer<?> analyzer) {
             analyzer.enter(this);
             analyzer.numericValue(this);
             analyzer.exit(this);
@@ -175,7 +177,7 @@ public abstract class Tree {
         }
 
         @Override
-        public void accept(TreeAnalyzer analyzer) {
+        public void accept(TreeAnalyzer<?> analyzer) {
             analyzer.enter(this);
             analyzer.stringValue(this);
             analyzer.exit(this);
@@ -193,7 +195,7 @@ public abstract class Tree {
         }
 
         @Override
-        public void accept(TreeAnalyzer analyzer) {
+        public void accept(TreeAnalyzer<?> analyzer) {
             analyzer.enter(this);
 
             params.each(t -> t.accept(analyzer));
@@ -216,7 +218,7 @@ public abstract class Tree {
         }
 
         @Override
-        public void accept(TreeAnalyzer analyzer) {
+        public void accept(TreeAnalyzer<?> analyzer) {
             analyzer.enter(this);
             body.accept(analyzer);
             analyzer.funcDecl(this);
@@ -233,7 +235,7 @@ public abstract class Tree {
         }
 
         @Override
-        public void accept(TreeAnalyzer analyzer) {
+        public void accept(TreeAnalyzer<?> analyzer) {
             analyzer.enter(this);
             analyzer.funcExec(this);
             analyzer.exit(this);

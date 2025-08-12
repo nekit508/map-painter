@@ -1,21 +1,18 @@
 package com.github.nekit508.mappainter.gui.compiletime;
 
-import arc.struct.IntSeq;
 import com.github.nekit508.mappainter.gui.Context;
 import com.github.nekit508.mappainter.gui.exceptions.TokenizerException;
-import com.github.nekit508.mappainter.gui.utils.Pos;
+import com.github.nekit508.mappainter.gui.utils.PosProvider;
 import com.github.nekit508.mappainter.gui.utils.ReusableStream;
 import com.github.nekit508.mappainter.gui.utils.ReusableStreamAbstractImpl;
+import com.github.nekit508.mappainter.gui.utils.Utils;
 
-public class Tokenizer<T extends Context> extends ReusableStreamAbstractImpl<Token> {
+public class Lexer<T extends Context> extends ReusableStreamAbstractImpl<Token> {
     public ReusableStream<Character> reader;
+    private final PosProvider positionProvider;
     public T context;
     public StringBuilder cl = new StringBuilder();
     public Token ct;
-
-    public Pos currentPos = new Pos(0, 0);
-
-    public IntSeq linesSizes = new IntSeq();
 
     public char[] whitespace = {' ', '\n', '\r', '\t'};
 
@@ -85,7 +82,8 @@ public class Tokenizer<T extends Context> extends ReusableStreamAbstractImpl<Tok
             Token.Kind.NULL
     };
 
-    public Tokenizer(ReusableStream<Character> compileSource, T context) {
+    public Lexer(ReusableStream<Character> compileSource, PosProvider positionProvider, T context) {
+        this.positionProvider = positionProvider;
         this.context = context;
         reader = compileSource;
     }
@@ -108,30 +106,11 @@ public class Tokenizer<T extends Context> extends ReusableStreamAbstractImpl<Tok
     }
 
     public void redoChar() {
-        var c = getChar();
-        if (!in(c, notVisible))
-            currentPos.pos -= 1;
-
-        if(c == '\n') {
-            currentPos.pos = linesSizes.pop();
-            currentPos.line -= 1;
-        }
-
         reader.redo();
     }
 
     public char getNextChar() {
-        var c = reader.next();
-
-        if (!in(c, notVisible))
-            currentPos.pos += 1;
-
-        if(c == '\n') {
-            linesSizes.add(currentPos.pos);
-            currentPos.line += 1;
-            currentPos.pos = 0;
-        }
-        return c;
+        return reader.next();
     }
 
     public Token parseNextToken() throws TokenizerException {
@@ -143,7 +122,7 @@ public class Tokenizer<T extends Context> extends ReusableStreamAbstractImpl<Tok
             {
                 var c = getNextNotWhitespace();
 
-                ct.pos = currentPos.copy();
+                ct.pos = positionProvider.getCurrentPos();
 
                 // try to parse any single character token
                 ct.kind = switch (c) {
@@ -169,17 +148,17 @@ public class Tokenizer<T extends Context> extends ReusableStreamAbstractImpl<Tok
                     break kind;
 
                 // now try to parse any poly character token
-                if (in(c, identStart)) {
+                if (Utils.in(c, identStart)) {
                     parseIdentOrKeyword();
-                } else if (in(c, stringStart)) {
+                } else if (Utils.in(c, stringStart)) {
                     parseString(c == '"');
-                } else if (in(c, numberStart)) {
+                } else if (Utils.in(c, numberStart)) {
                     parseNumber();
                 }
             }
 
             if (ct.kind == null)
-                throw new TokenizerException("Unknown token kind.", currentPos);
+                throw new TokenizerException("Unknown token kind.", ct.pos);
             else {
                 ct.literal = cl.toString();
                 return ct;
@@ -192,13 +171,13 @@ public class Tokenizer<T extends Context> extends ReusableStreamAbstractImpl<Tok
     }
 
     public char getNextNotWhitespace() {
-        while (in(getNextChar(), whitespace));
+        while (Utils.in(getNextChar(), whitespace));
         return getChar();
     }
 
     public void parseIdentOrKeyword() {
         do putChar(getChar());
-        while (in(getNextChar(), identBody));
+        while (Utils.in(getNextChar(), identBody));
         redoChar();
 
         ct.kind = Token.Kind.IDENT;
@@ -220,20 +199,12 @@ public class Tokenizer<T extends Context> extends ReusableStreamAbstractImpl<Tok
         ct.kind = Token.Kind.NUMBER;
 
         do putChar(getChar());
-        while (in(getNextChar(), numberBody));
+        while (Utils.in(getNextChar(), numberBody));
 
-        if (in(getChar(), numberEnd))
+        if (Utils.in(getChar(), numberEnd))
             putChar(getChar());
         else
             ct.kind = null;
-    }
-
-    public boolean in(char c, char[] group) {
-        for (int i = 0; i < group.length; i++)
-            if (c == group[i])
-                return true;
-
-        return false;
     }
 
     @Override
