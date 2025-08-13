@@ -3,7 +3,7 @@ package com.github.nekit508.mappainter.control.keys;
 import arc.input.KeyCode;
 import com.github.nekit508.mappainter.control.keys.axis.KeyCodeAxisAdjustableBinding;
 
-public enum MPAxisBuildings implements KeyCodeAxisAdjustableBinding {
+public enum MPAxisBindings implements KeyCodeAxisAdjustableBinding {
     moveX(MPCategories.camera, "camera-move-x", KeyCode.d, KeyCode.a),
     moveY(MPCategories.camera, "camera-move-y", KeyCode.w, KeyCode.s);
 
@@ -13,7 +13,7 @@ public enum MPAxisBuildings implements KeyCodeAxisAdjustableBinding {
     public final KeyCode defaultUp, defaultDown;
     public KeyCode up, down;
 
-    MPAxisBuildings(Category category, String id, KeyCode defaultUp, KeyCode defaultDown) {
+    MPAxisBindings(Category category, String id, KeyCode defaultUp, KeyCode defaultDown) {
         this.category = category;
         this.id = id;
         this.defaultUp = defaultUp;

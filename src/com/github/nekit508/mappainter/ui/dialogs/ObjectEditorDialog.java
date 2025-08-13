@@ -1,17 +1,19 @@
 package com.github.nekit508.mappainter.ui.dialogs;
 
 import arc.Core;
+import arc.Events;
 import arc.func.Boolp;
 import arc.func.Prov;
 import arc.graphics.Color;
 import arc.graphics.g2d.Font;
-import arc.input.InputProcessor;
-import arc.input.KeyCode;
 import arc.scene.Element;
 import arc.scene.event.InputEvent;
 import arc.scene.event.InputListener;
 import arc.scene.style.Drawable;
-import arc.scene.ui.*;
+import arc.scene.ui.Label;
+import arc.scene.ui.ScrollPane;
+import arc.scene.ui.TextArea;
+import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Collapser;
 import arc.scene.ui.layout.Table;
 import arc.scene.utils.Elem;
@@ -20,7 +22,10 @@ import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.Nullable;
 import arc.util.Strings;
+import com.github.nekit508.mappainter.control.keys.MPKeyBindings;
+import com.github.nekit508.mappainter.control.keys.keyboard.KeyBinding;
 import mindustry.Vars;
+import mindustry.game.EventType;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
@@ -35,7 +40,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ObjectEditorDialog extends BaseDialog {
-    public KeyCode keyBind = KeyCode.f12;
+    public KeyBinding bind = MPKeyBindings.openObjectEditor;
 
     public Seq<Object> objectsHistory = new Seq<>();
     public Table objectsHistoryTable;
@@ -58,15 +63,11 @@ public class ObjectEditorDialog extends BaseDialog {
         super(title);
         shown(this::build);
         setModal(false);
-        Core.input.addProcessor(new InputProcessor() {
-            @Override
-            public boolean keyDown(KeyCode keycode) {
-                if (keycode == keyBind) {
-                    if (isShown()) hide();
-                    else show();
-                    return true;
-                }
-                return false;
+        Events.run(EventType.Trigger.update, () -> {
+            if (bind.active()) {
+                if (isShown())
+                    hide();
+                else show();
             }
         });
 

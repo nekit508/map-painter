@@ -4,8 +4,8 @@ import arc.util.Log;
 import com.github.nekit508.betterfloors.core.BetterFloorsCore;
 import com.github.nekit508.mappainter.content.MPFx;
 import com.github.nekit508.mappainter.control.MPControl;
-import com.github.nekit508.mappainter.control.keys.MPAxisBuildings;
-import com.github.nekit508.mappainter.control.keys.MPKeyboardBindings;
+import com.github.nekit508.mappainter.control.keys.MPAxisBindings;
+import com.github.nekit508.mappainter.control.keys.MPKeyBindings;
 import com.github.nekit508.mappainter.files.InternalFileTree;
 import com.github.nekit508.mappainter.graphics.MPRenderer;
 import com.github.nekit508.mappainter.graphics.figure.*;
@@ -88,8 +88,8 @@ public class MPCore extends Mod {
 
         MPUI.init();
 
-        MPUI.keybindsDialog.addKeybindings(MPKeyboardBindings.values());
-        MPUI.keybindsDialog.addKeybindings(MPAxisBuildings.values());
+        MPUI.keybindsDialog.addKeybindings(MPKeyBindings.values());
+        MPUI.keybindsDialog.addKeybindings(MPAxisBindings.values());
 
         renderer = new MPRenderer();
 

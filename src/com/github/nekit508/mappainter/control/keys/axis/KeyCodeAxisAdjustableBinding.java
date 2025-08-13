@@ -6,20 +6,20 @@ import mindustry.graphics.Pal;
 
 public interface KeyCodeAxisAdjustableBinding extends KeyCodeAxisBinding, Adjustable {
     @Override
-    default void buildSettings(Table table) {
-
+    default Runnable buildSettings(Table table) {
+        return null;
     }
 
     @Override
     default void created() {
-        KeyCodeAxisBinding.super.created();
         Adjustable.super.created();
     }
 
     @Override
-    default void buildInfo(Table table) {
+    default Runnable buildInfo(Table table) {
         table.labelWrap(() -> up() != null ? up().toString() : "nil").color(Pal.accent).right().minWidth(90).fillX().padRight(20);
         table.labelWrap(() -> down() != null ? down().toString() : "nil").color(Pal.accent).right().minWidth(90).fillX().padRight(20);
+        return null;
     }
 
     @Override

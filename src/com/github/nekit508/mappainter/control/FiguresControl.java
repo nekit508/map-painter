@@ -9,8 +9,8 @@ import arc.scene.actions.Actions;
 import arc.scene.ui.ButtonGroup;
 import arc.scene.ui.TextButton;
 import arc.scene.ui.layout.Table;
-import com.github.nekit508.mappainter.control.keys.keyboard.KeyboardBinding;
-import com.github.nekit508.mappainter.control.keys.MPKeyboardBindings;
+import com.github.nekit508.mappainter.control.keys.keyboard.KeyBinding;
+import com.github.nekit508.mappainter.control.keys.MPKeyBindings;
 import com.github.nekit508.mappainter.core.MPCore;
 import com.github.nekit508.mappainter.graphics.figure.FigureType;
 import com.github.nekit508.mappainter.ui.scene.RadialMenu;
@@ -167,8 +167,8 @@ public class FiguresControl extends ControlReceiver {
     }
 
     @Override
-    public KeyboardBinding switchButton() {
-        return MPKeyboardBindings.openPainter;
+    public KeyBinding switchButton() {
+        return MPKeyBindings.openPainter;
     }
 
     public void figureCreated() {

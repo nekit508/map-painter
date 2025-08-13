@@ -7,8 +7,8 @@ import arc.scene.ui.Button;
 import arc.scene.ui.ButtonGroup;
 import arc.scene.ui.layout.Table;
 import com.github.nekit508.mappainter.content.MPFx;
-import com.github.nekit508.mappainter.control.keys.keyboard.KeyboardBinding;
-import com.github.nekit508.mappainter.control.keys.MPKeyboardBindings;
+import com.github.nekit508.mappainter.control.keys.keyboard.KeyBinding;
+import com.github.nekit508.mappainter.control.keys.MPKeyBindings;
 import com.github.nekit508.mappainter.ui.scene.CollapserWithHeader;
 import mindustry.content.Fx;
 import mindustry.entities.Effect;
@@ -21,8 +21,8 @@ public class TesterControl extends ControlReceiver {
     public ButtonGroup<Button> effectSelectors;
 
     @Override
-    public KeyboardBinding switchButton() {
-        return MPKeyboardBindings.openTester;
+    public KeyBinding switchButton() {
+        return MPKeyBindings.openTester;
     }
 
     @Override

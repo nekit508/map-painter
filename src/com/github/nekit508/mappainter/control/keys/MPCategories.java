@@ -1,7 +1,7 @@
 package com.github.nekit508.mappainter.control.keys;
 
 public enum MPCategories implements Category {
-    baseBindings("mp-base-bindings"),
+    dialogs("mp-dialogs"),
     camera("mp-camera");
 
     private final String id;

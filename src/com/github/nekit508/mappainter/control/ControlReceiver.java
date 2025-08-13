@@ -8,9 +8,9 @@ import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.Time;
 import arc.util.Tmp;
-import com.github.nekit508.mappainter.control.keys.MPAxisBuildings;
-import com.github.nekit508.mappainter.control.keys.MPKeyboardBindings;
-import com.github.nekit508.mappainter.control.keys.keyboard.KeyboardBinding;
+import com.github.nekit508.mappainter.control.keys.MPAxisBindings;
+import com.github.nekit508.mappainter.control.keys.MPKeyBindings;
+import com.github.nekit508.mappainter.control.keys.keyboard.KeyBinding;
 import mindustry.Vars;
 import mindustry.game.EventType;
 
@@ -68,7 +68,7 @@ public abstract class ControlReceiver {
 
         if (!enabled) return;
 
-        Core.camera.position.add(Tmp.v1.setZero().add(MPAxisBuildings.moveX.axis(), MPAxisBuildings.moveY.axis()).nor().scl((MPKeyboardBindings.moveBoost.active() ? 45f : 15f) * Time.delta));
+        Core.camera.position.add(Tmp.v1.setZero().add(MPAxisBindings.moveX.axis(), MPAxisBindings.moveY.axis()).nor().scl((MPKeyBindings.moveBoost.active() ? 45f : 15f) * Time.delta));
     }
 
     public void init() {
@@ -81,5 +81,5 @@ public abstract class ControlReceiver {
         Core.scene.add(group);
     }
 
-    public abstract KeyboardBinding switchButton();
+    public abstract KeyBinding switchButton();
 }
