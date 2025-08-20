@@ -10,6 +10,7 @@ public enum GUITokenKinds implements TokenKind {
     BOOLEAN,
 
     FUNC,
+    CREATE,
     DEFAULT;
 
     enum SingleSymbol implements TokenKind, Prov<Character> {

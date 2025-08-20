@@ -19,7 +19,7 @@ import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.Nullable;
 import arc.util.Strings;
-import com.github.nekit508.mappainter.control.keys.MPKeyBindings;
+import com.github.nekit508.mappainter.control.MPKeyBindings;
 import com.github.nekit508.mappainter.control.keys.keyboard.KeyBinding;
 import mindustry.Vars;
 import mindustry.game.EventType;

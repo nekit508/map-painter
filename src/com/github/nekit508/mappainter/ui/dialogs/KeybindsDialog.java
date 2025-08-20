@@ -22,19 +22,19 @@ import mindustry.ui.dialogs.BaseDialog;
 
 public class KeybindsDialog extends BaseDialog {
     protected final Seq<Adjustable> bindings = new Seq<>();
-    protected final ObjectMap<Category, Seq<Adjustable>> bindingsSorted = new ObjectMap<>();
+    protected final ObjectMap<Category, Seq<Adjustable>> bindingsMap = new ObjectMap<>();
 
-    protected boolean isAdjustingBinding = false;
-    protected Table adjustingBindingTable;
+    protected boolean isAdjusting = false;
+    protected Table adjustingTable;
     protected Table paneTable;
+    protected ScrollPane pane;
 
     protected TextField searchField;
     protected String searchedKey, searchedCategory, searchedBind;
     protected String searchText;
     protected boolean searchTextValid = true;
 
-    protected Runnable onAdjustingDestroyed = null;
-    protected Runnable onInfoDestroyed = null;
+    protected Adjustable currentBinding;
 
     public KeybindsDialog() {
         super("@map-painter-keybindings-dialog");
@@ -45,9 +45,21 @@ public class KeybindsDialog extends BaseDialog {
         addCloseButton();
         makeButtonOverlay();
 
-        resized(this::resized);
+        initMainWidgets();
 
         Vars.ui.menufrag.addButton("@map-painter-keybindings-dialog", Icon.settings, this::show);
+    }
+
+    protected void initMainWidgets() {
+        adjustingTable = new Table();
+        adjustingTable.visible(() -> isAdjusting);
+
+        paneTable = new Table();
+        paneTable.defaults().growX().pad(5);
+        paneTable.center().top();
+
+        pane = new ScrollPane(paneTable);
+        pane.visible(() -> !isAdjusting);
     }
 
     protected void parseSearchText() {
@@ -100,16 +112,8 @@ public class KeybindsDialog extends BaseDialog {
                 searchedBind = searchText;
     }
 
-    public void resized() {
-        destroy();
-        rebuild();
-    }
-
-    public void rebuild() {
-        isAdjustingBinding = false;
-
-        cont.defaults();
-
+    public void buildCont() {
+        cont.clear();
         cont.table(searchTable -> {
             var searchHelperCollapser = new OverlayCollapser((table, collapser) -> {
                 table.background(Styles.black6);
@@ -139,6 +143,8 @@ public class KeybindsDialog extends BaseDialog {
             searchHelper.clicked(searchHelperCollapser::toggle);
 
             searchTable.stack(searchHelperCollapser, searchHelper).padRight(5);
+            searchText = "";
+            parseSearchText();
             searchTable.field("", str -> {}).with(field -> field.addListener(new InputListener() {
                 @Override
                 public boolean keyUp(InputEvent event, KeyCode keycode) {
@@ -150,28 +156,17 @@ public class KeybindsDialog extends BaseDialog {
             })).valid(str -> searchTextValid).with(f -> searchField = f).growX();
         }).growX().row();
 
-        paneTable = new Table();
-        paneTable.defaults().growX().pad(5);
-        paneTable.center().top();
-        rebuildPaneTable();
+        buildPaneTable();
 
-        var pane = new ScrollPane(paneTable);
-        pane.visible(() -> !isAdjustingBinding);
-
-        adjustingBindingTable = new Table();
-        adjustingBindingTable.visible(() -> isAdjustingBinding);
-
-        cont.stack(pane, adjustingBindingTable).grow();
+        cont.stack(pane, adjustingTable).grow();
     }
 
     public void shown() {
-        rebuild();
+        buildCont();
     }
 
-    public void rebuildPaneTable() {
-        paneTable.clear();
-
-        var categories = bindingsSorted.keys();
+    public void buildPaneTable() {
+        var categories = bindingsMap.keys();
         for (var category : categories) {
             if (!category.filterValid(searchedCategory)) continue;
 
@@ -179,7 +174,7 @@ public class KeybindsDialog extends BaseDialog {
             categoryTable.defaults().growX();
 
             var hasAnyMember = false;
-            var bindings = bindingsSorted.get(category);
+            var bindings = bindingsMap.get(category);
             for (var binding : bindings) {
                 if (!binding.bindFilterValid(searchedBind) || !binding.keyFilterValid(searchedKey)) continue;
                 hasAnyMember = true;
@@ -189,10 +184,14 @@ public class KeybindsDialog extends BaseDialog {
                 categoryTable.table(info -> {
                     info.right();
 
-                    onInfoDestroyed = binding.buildInfo(info);
+                    binding.buildInfo(info);
+                    info.defaults().reset();
 
                     info.defaults().size(Vars.iconMed).padRight(10);
-                    info.button(Icon.settings, Styles.emptyi, Vars.iconMed, () -> showAdjustingBindingTable(binding));
+                    info.button(Icon.settings, Styles.emptyi, Vars.iconMed, () -> {
+                        currentBinding = binding;
+                        showAdjustingTable();
+                    });
                     info.button(Icon.refresh, Styles.emptyi, Vars.iconMed, () -> {
                         binding.defaults();
                         rebuildPaneTable();
@@ -217,70 +216,56 @@ public class KeybindsDialog extends BaseDialog {
         }
     }
 
+    public void rebuildPaneTable() {
+        hidePaneTable();
+        buildPaneTable();
+    }
+
     public void reloadBindings() {
         bindings.each(Adjustable::save);
         bindings.each(Adjustable::load);
     }
 
-    public void destroy() {
-        cont.reset();
-        destroyAdjustingBindingTable();
+    public void hideAdjustingTable() {
+        currentBinding = null;
+        isAdjusting = false;
 
-        if (onInfoDestroyed != null) {
-            onInfoDestroyed.run();
-            onInfoDestroyed = null;
-        }
+        adjustingTable.reset();
+        reloadBindings();
+    }
 
-        paneTable = null;
-        searchField = null;
+    public void hidePaneTable() {
+        paneTable.clear();
+    }
+
+    public void showAdjustingTable() {
+        isAdjusting = true;
+
+        currentBinding.buildSettings(adjustingTable);
     }
 
     public void hidden() {
-        destroy();
-        reloadBindings();
-    }
-
-    public void showAdjustingBindingTable(Adjustable binding) {
-        adjustingBindingTable.clear();
-        onAdjustingDestroyed = binding.buildSettings(adjustingBindingTable);
-        isAdjustingBinding = true;
-    }
-
-    public void destroyAdjustingBindingTable() {
-        if (onAdjustingDestroyed != null) {
-            onAdjustingDestroyed.run();
-            onAdjustingDestroyed = null;
-        }
-
-        isAdjustingBinding = false;
-        adjustingBindingTable.clear();
+        hideAdjustingTable();
+        hidePaneTable();
 
         reloadBindings();
-        rebuildPaneTable();
-    }
-
-    public void hideAdjustingBindingTable() {
-        destroyAdjustingBindingTable();
-
-        reloadBindings();
-        rebuildPaneTable();
     }
 
     public void addKeybindings(Adjustable... binds) {
         bindings.addAll(binds);
 
         for (var bind : binds) {
-            if (!bindingsSorted.containsKey(bind.category()))
-                bindingsSorted.put(bind.category(), new Seq<>());
-            bindingsSorted.get(bind.category()).add(bind);
+            if (!bindingsMap.containsKey(bind.category()))
+                bindingsMap.put(bind.category(), new Seq<>());
+            bindingsMap.get(bind.category()).add(bind);
         }
     }
 
     @Override
     public void hide() {
-        if (!isAdjustingBinding)
+        if (!isAdjusting)
             super.hide();
         else
-            hideAdjustingBindingTable();
+            hideAdjustingTable();
     }
 }

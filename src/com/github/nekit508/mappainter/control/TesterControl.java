@@ -8,7 +8,6 @@ import arc.scene.ui.ButtonGroup;
 import arc.scene.ui.layout.Table;
 import com.github.nekit508.mappainter.content.MPFx;
 import com.github.nekit508.mappainter.control.keys.keyboard.KeyBinding;
-import com.github.nekit508.mappainter.control.keys.MPKeyBindings;
 import com.github.nekit508.mappainter.ui.scene.CollapserWithHeader;
 import mindustry.content.Fx;
 import mindustry.entities.Effect;

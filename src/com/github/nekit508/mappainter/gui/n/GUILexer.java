@@ -35,12 +35,14 @@ public class GUILexer extends Lexer<GUIContext> {
     public String[] keywords = {
             "default",
             "func",
+            "create",
             "true",
             "false"
     };
     public GUITokenKinds[] keywordKinds = {
             GUITokenKinds.DEFAULT,
             GUITokenKinds.FUNC,
+            GUITokenKinds.CREATE,
             GUITokenKinds.BOOLEAN,
             GUITokenKinds.BOOLEAN
     };
@@ -77,7 +79,6 @@ public class GUILexer extends Lexer<GUIContext> {
         identBody = newIdentBody;
 
         skipWhiteSpacesRule = com.github.nekit508.plcf.lang.compiletime.lexer.LexerRule.createSkip("skipWhiteSpaces", whitespaces);
-
         skipCommentsRule = LexerRule.createSkipComments("skipComments", newLines, commentMarkers, multilineCommentMarkers);
         skipSymbols = LexerRule.parseWhileParsing("skipMiscSymbols", skipCommentsRule, skipWhiteSpacesRule);
 
@@ -87,7 +88,7 @@ public class GUILexer extends Lexer<GUIContext> {
 
         singleSymbolTokenRule = LexerRule.createOneSymbolParser("singleSymbolToken", GUITokenKinds.SingleSymbol.values());
 
-        rootRules.addAll(skipSymbols);
+        rootRules.addAll(skipSymbols, singleSymbolTokenRule, identOrKeywordRule, numberRule, stringRule);
     }
 
     @Override

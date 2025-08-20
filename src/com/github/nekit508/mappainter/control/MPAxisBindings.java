@@ -1,6 +1,7 @@
-package com.github.nekit508.mappainter.control.keys;
+package com.github.nekit508.mappainter.control;
 
 import arc.input.KeyCode;
+import com.github.nekit508.mappainter.control.keys.Category;
 import com.github.nekit508.mappainter.control.keys.axis.KeyCodeAxisAdjustableBinding;
 
 public enum MPAxisBindings implements KeyCodeAxisAdjustableBinding {

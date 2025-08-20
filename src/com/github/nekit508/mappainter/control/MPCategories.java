@@ -1,4 +1,6 @@
-package com.github.nekit508.mappainter.control.keys;
+package com.github.nekit508.mappainter.control;
+
+import com.github.nekit508.mappainter.control.keys.Category;
 
 public enum MPCategories implements Category {
     dialogs("mp-dialogs"),

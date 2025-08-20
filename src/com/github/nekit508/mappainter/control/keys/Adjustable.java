@@ -8,8 +8,8 @@ public interface Adjustable {
     String id();
     Category category();
 
-    Runnable buildSettings(Table table);
-    Runnable buildInfo(Table table);
+    void buildSettings(Table table);
+    void buildInfo(Table table);
 
     void save();
     void load();
