@@ -245,7 +245,7 @@ public class ObjectEditorDialog extends BaseDialog {
         editingObjectTable.pane(pane -> {
             if (editingObject != null)
                 objectEditingInfo = buildObjectEditorFor(pane, editingObject);
-        }).expandY().with(pane -> pane.setForceScroll(false, true));
+        }).expandY().with(pane -> pane.setForceScroll(true, true));
     }
 
     public ObjectEditingInfo buildObjectEditorFor(Table table, Object object) {
@@ -263,22 +263,21 @@ public class ObjectEditorDialog extends BaseDialog {
         }, true);
 
         table.table(head -> {
-            head.defaults().growX();
+            head.defaults().expandX().left();
 
-            head.add(object.toString()).left().color(Pal.techBlue).tooltip(object.toString());
-            head.button(Icon.save, Styles.emptyi, editingInfo::apply).size(40f).left();
-            head.button(Icon.downOpen, Styles.emptyi, () -> {
-                        collapser.toggle(false);
-                        if (!collapser.isCollapsed()) {
-                            var classes = refClasses.get();
-                            var fieldsMap = refFieldsMap.get();
+            head.button(Icon.downOpen, Styles.emptyi, Vars.iconMed, () -> {
+                collapser.toggle(false);
+                if (!collapser.isCollapsed()) {
+                    var classes = refClasses.get();
+                    var fieldsMap = refFieldsMap.get();
 
-                            for (Class<?> clazz : classes)
-                                buildFieldsEditorFor(refTable.get(), clazz, fieldsMap, object, editingInfo);
-                        } else
-                            refTable.get().clear();
-                    })
-                    .update(i -> i.getStyle().imageUp = (!collapser.isCollapsed() ? Icon.upOpen : Icon.downOpen)).size(40f).right();
+                    for (Class<?> clazz : classes)
+                        buildFieldsEditorFor(refTable.get(), clazz, fieldsMap, object, editingInfo);
+                } else
+                    refTable.get().clear();
+            }).update(i -> i.getStyle().imageUp = (!collapser.isCollapsed() ? Icon.upOpen : Icon.downOpen)).size(Vars.iconMed);
+            head.button(Icon.save, Styles.emptyi, Vars.iconMed, editingInfo::apply).size(Vars.iconMed);
+            head.add(Strings.truncate(object.toString(), 20)).left().color(Pal.techBlue).tooltip(object.toString());
         });
         table.row();
 
