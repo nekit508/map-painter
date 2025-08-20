@@ -10,10 +10,7 @@ import arc.scene.Element;
 import arc.scene.event.InputEvent;
 import arc.scene.event.InputListener;
 import arc.scene.style.Drawable;
-import arc.scene.ui.Label;
-import arc.scene.ui.ScrollPane;
-import arc.scene.ui.TextArea;
-import arc.scene.ui.TextField;
+import arc.scene.ui.*;
 import arc.scene.ui.layout.Collapser;
 import arc.scene.ui.layout.Table;
 import arc.scene.utils.Elem;
@@ -117,8 +114,8 @@ public class ObjectEditorDialog extends BaseDialog {
                         rightTopLeft.row();
                         rightTopLeft.table(rightTopButtons -> {
                             rightTopButtons.left();
-                            rightTopButtons.button("run code", Icon.settings, Styles.defaultt, () -> {
-                            }).width(200);
+                            rightTopButtons.button("run code", Icon.settings, Styles.cleart, () -> {
+                            }).height(Vars.iconMed).pad(5).width(200);
                         }).expandX();
                     }).grow();
 
@@ -136,41 +133,39 @@ public class ObjectEditorDialog extends BaseDialog {
                         rightTopRight.table(rightTopButtons -> {
                             rightTopButtons.center();
                             rightTopButtons.defaults().growX();
-                            rightTopButtons.button("run code", Icon.settings, Styles.defaultt, () -> {
+                            rightTopButtons.button("run code", Icon.settings, Styles.cleart, () -> {
                                 var scripts = Vars.mods.getScripts();
                                 try {
                                     lastSelectedObject = scripts.context.evaluateString(scripts.scope, objectSelector.getText(), "ObjectSelector.js", 0);
-                                    String output = "Returned " + getObjectInfoString(lastSelectedObject);
+                                    String output = "Returned " + getObjectInfoString(lastSelectedObject).get();
                                     if (lastSelectedObject instanceof Undefined) {
                                         lastSelectedObject = null;
                                     } else if (lastSelectedObject instanceof NativeJavaObject) {
                                         lastSelectedObject = ((NativeJavaObject) lastSelectedObject).unwrap();
                                     }
-                                    output += "Proceed as " + getObjectInfoString(lastSelectedObject);
+                                    output += "Proceed as " + getObjectInfoString(lastSelectedObject).get();
                                     runOutput = output;
                                     updateTextField();
                                 } catch (Throwable t) {
                                     runOutput = getError(t, false);
                                     updateTextField();
                                 }
-                            });
+                            }).height(Vars.iconMed).pad(5);
                             AtomicReference<Label> labelRef = new AtomicReference<>();
                             rightTopButtons.labelWrap(() ->
                                     lastSelectedObject == null ?
                                             "no object selected" :
-                                            getObjectInfoString(lastSelectedObject)
+                                            lastSelectedObject.toString()
                             ).with(l -> {
                                 labelRef.set(l);
                                 l.setEllipsis(true);
-                            }).tooltip(t -> {
-                                t.label(() -> labelRef.get().getText().toString());
-                            }).center();
-                            rightTopButtons.button("capture selected object", Icon.save, Styles.defaultt, () -> {
+                            }).tooltip(t -> t.label(() -> labelRef.get().getText().toString())).center();
+                            rightTopButtons.button("capture selected object", Icon.save, Styles.cleart, () -> {
                                 if (lastSelectedObject == null) return;
                                 objectsHistory.add(lastSelectedObject);
                                 rebuildObjectsHistoryTable();
                                 lastSelectedObject = null;
-                            });
+                            }).height(Vars.iconMed).pad(5);
                         }).expandX();
                     }).grow();
                 }).grow().uniformY();
@@ -223,7 +218,7 @@ public class ObjectEditorDialog extends BaseDialog {
                 objectTable.defaults().height(32);
                 objectTable.image(Icon.info, Color.white).width(32);
                 AtomicReference<Label> labelRef = new AtomicReference<>();
-                objectTable.labelWrap(getObjectInfoString(object)).with(l -> l.setEllipsis(true)).left().growX()
+                objectTable.label(getObjectInfoString(object)).with(l -> l.setEllipsis(true)).left().growX()
                         .with(labelRef::set).tooltip(t -> t.labelWrap(labelRef.get().getText().toString()));
                 objectTable.button(Icon.trash, Styles.cleari, () -> {
                     objectsHistory.remove(object);
@@ -249,7 +244,7 @@ public class ObjectEditorDialog extends BaseDialog {
     }
 
     public ObjectEditingInfo buildObjectEditorFor(Table table, Object object) {
-        table.defaults().growX();
+        table.top().defaults().growX();
 
         var editingInfo = new ObjectEditingInfo(object);
 
@@ -277,7 +272,7 @@ public class ObjectEditorDialog extends BaseDialog {
                     refTable.get().clear();
             }).update(i -> i.getStyle().imageUp = (!collapser.isCollapsed() ? Icon.upOpen : Icon.downOpen)).size(Vars.iconMed);
             head.button(Icon.save, Styles.emptyi, Vars.iconMed, editingInfo::apply).size(Vars.iconMed);
-            head.add(Strings.truncate(object.toString(), 20)).left().color(Pal.techBlue).tooltip(object.toString());
+            head.label(() -> Strings.truncate(object.toString(), 20)).left().color(Pal.techBlue).tooltip(t -> t.label(object::toString).expandX());
         });
         table.row();
 
@@ -356,8 +351,8 @@ public class ObjectEditorDialog extends BaseDialog {
         rebuildEditingObjectTable();
     }
 
-    public String getObjectInfoString(Object object) {
-        return object == null ? "null" : object.toString();
+    public Prov<CharSequence> getObjectInfoString(Object object) {
+        return object == null ? () -> "null" : object::toString;
     }
 
     public void updateTextField() {
@@ -376,11 +371,13 @@ public class ObjectEditorDialog extends BaseDialog {
                 if ((modifiers & Modifier.STATIC) != 0)
                     throw new IllegalArgumentException("Static fields not allowed " + field + ".");
                 if ((modifiers & Modifier.PUBLIC) == 0) {
-                    outElement.set(new Label("not public field") {{
+                    field.setAccessible(true);
+
+                    /*outElement.set(new Label("not public field") {{
                         setEllipsis(true);
                         setWrap(true);
                     }});
-                    return;
+                    return;*/
                 } else if ((modifiers & Modifier.FINAL) != 0) {
                     outElement.set(new Label("final field") {{
                         setEllipsis(true);
@@ -467,11 +464,43 @@ public class ObjectEditorDialog extends BaseDialog {
                     outElement.set(button);
                 }
             } else if (type.isEnum()) {
+                var buttons = new ButtonGroup<CheckBox>();
+                buttons.setMaxCheckCount(1);
+                buttons.setMinCheckCount(1);
 
+                var table = new Table();
+                table.defaults().growX();
+
+                var enums = type.getEnumConstants();
+                for (Object anEnum : enums)
+                    table.check(anEnum.toString(), b -> {}).with(buttons::add).with(Button::toggle).with(b -> b.userObject = anEnum).size(Vars.iconMed).row();
+
+                outValueProvider.set(() -> buttons.getChecked().userObject);
+
+                outElement.set(table);
             } else if (type.isArray()) {
+                var table = new Table();
+                table.defaults().growX();
 
-            } else if (type.isLocalClass()) {
+                var array = (Object[]) field.get(object);
+                if (array != null) {
+                    Seq<ObjectEditingInfo> infos = new Seq<>();
+                    for (Object obj : array)
+                        if (obj != null)
+                            infos.add(buildObjectEditorFor(table, obj));
+                        else
+                            table.label(() -> "null").row();;
 
+                    outValueProvider.set(() -> {
+                        for (int i = 0; i < infos.size; i++) array[i] = infos.get(i);
+                        return array;
+                    });
+                } else {
+                    table.label(() -> "null").row();
+                    outValueProvider.set(() -> null);
+                }
+
+                outElement.set(table);
             } else {
                 if (type == String.class) {
                     var tf = new TextField();
@@ -528,8 +557,7 @@ public class ObjectEditorDialog extends BaseDialog {
 
         public void apply() {
             try {
-                fieldsApply:
-                {
+                fieldsApply: {
                     for (Field field : fields)
                         if (!isReadyProviders.get(field).get())
                             break fieldsApply;
