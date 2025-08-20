@@ -371,13 +371,11 @@ public class ObjectEditorDialog extends BaseDialog {
                 if ((modifiers & Modifier.STATIC) != 0)
                     throw new IllegalArgumentException("Static fields not allowed " + field + ".");
                 if ((modifiers & Modifier.PUBLIC) == 0) {
-                    field.setAccessible(true);
-
-                    /*outElement.set(new Label("not public field") {{
+                    outElement.set(new Label("not public field") {{
                         setEllipsis(true);
                         setWrap(true);
                     }});
-                    return;*/
+                    return;
                 } else if ((modifiers & Modifier.FINAL) != 0) {
                     outElement.set(new Label("final field") {{
                         setEllipsis(true);
