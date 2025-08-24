@@ -36,8 +36,8 @@ public class KeybindsDialog extends BaseDialog {
 
     protected Adjustable currentBinding;
 
-    public KeybindsDialog() {
-        super("@map-painter-keybindings-dialog");
+    public KeybindsDialog(String name) {
+        super(name);
 
         shown(this::shown);
         hidden(this::hidden);

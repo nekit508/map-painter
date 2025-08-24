@@ -11,14 +11,17 @@ import arc.graphics.gl.PixmapTextureData;
 import arc.graphics.gl.Shader;
 import arc.struct.FloatSeq;
 import arc.struct.IntMap;
+import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.io.Reads;
+import com.github.nekit508.VertexesBuilder;
 import com.github.nekit508.betterfloors.core.BetterFloorsCore;
 import com.github.nekit508.betterfloors.tools.BFPreset;
 import mindustry.Vars;
 import mindustry.game.EventType;
 import mindustry.graphics.Layer;
+import mindustry.world.blocks.environment.Floor;
 
 import java.util.Arrays;
 
@@ -31,6 +34,8 @@ public class BFRenderer {
     public Texture mapTexture, bordersTexture;
     public TextureRegion mapTextureRegion, bordersTextureRegion;
 
+    public ObjectMap<Floor, Mesh> floorMeshes;
+
     public int maxTextureSize;
 
     public BFRenderer() {
@@ -42,18 +47,23 @@ public class BFRenderer {
 
     public void load() {
         bufferShader =  new Shader(
-        "attribute vec4 a_position;\n" +
-        "attribute vec2 a_texCoord0;\n" +
-        "varying vec2 v_texCoords;\n" +
-        "void main(){\n" +
-        "   v_texCoords = a_texCoord0;\n" +
-        "   gl_Position = a_position;\n" +
-        "}",
-        "uniform sampler2D u_texture;\n" +
-        "varying vec2 v_texCoords;\n" +
-        "void main(){\n" +
-        "  gl_FragColor = texture2D(u_texture, v_texCoords);\n" +
-        "}"
+                "attribute vec4 a_position;\n" +
+                        "attribute vec2 a_texCoord0;\n" +
+                        "varying vec2 v_texCoords;\n" +
+                        "void main(){\n" +
+                        "   v_texCoords = a_texCoord0;\n" +
+                        "   gl_Position = a_position;\n" +
+                        "}",
+                "uniform sampler2D u_texture;\n" +
+                        "varying vec2 v_texCoords;\n" +
+                        "void main(){\n" +
+                        "  gl_FragColor = texture2D(u_texture, v_texCoords);\n" +
+                        "}"
+        );
+
+        mainRenderShader = new Shader(
+                BetterFloorsCore.files.child("shaders/better-floor/better-floor.vert").readString(),
+                BetterFloorsCore.files.child("shaders/better-floor/better-floor.frag").readString()
         );
 
         maxTextureSize = Gl.getInt(Gl.maxTextureSize);
@@ -64,11 +74,18 @@ public class BFRenderer {
         bufferTextureRegion.set(buffer.getTexture());
 
         BFPreset preset = new BFPreset();
-        Fi fi = Vars.dataDirectory.child("presets").list("." + BFPreset.binaryExtensions)[0];
-        Log.infoList("[BFRenderer] Loading preset @", fi.nameWithoutExtension());
-        Reads reads = fi.reads();
-        preset.read(reads);
-        reads.close();
+        var potentialFiles = Vars.dataDirectory.child("presets").list("." + BFPreset.binaryExtensions);
+        if (potentialFiles.length == 0) {
+            preset.fillWithCurrentContent();
+            preset.writeReadable(null);
+            Log.info("[BFRenderer] Created new preset.");
+        } else {
+            Fi fi = potentialFiles[0];
+            Log.info("[BFRenderer] Loading preset @.", fi.nameWithoutExtension());
+            Reads reads = fi.reads();
+            preset.read(reads);
+            reads.close();
+        }
 
         Pixmap mapPixmap = PixmapIO.readPNG(BetterFloorsCore.files.child("map.png"));
         mapTexture = new Texture(new PixmapTextureData(mapPixmap, false, true));
@@ -125,19 +142,39 @@ public class BFRenderer {
         bordersTexture = new Texture(new PixmapTextureData(bordersPixmap, false, true));
         bordersTextureRegion = new TextureRegion(bordersTexture);
 
+        IntMap<VertexesBuilder> dataBuildersMap = new IntMap<>();
         for (int i = 0; i < handledTiles.length; i++) {
             for (int j = 0; j < handledTiles[i].length; j++) {
                 if (!handledTiles[i][j]) {
                     handledTiles[i][j] = true;
-
                     int x = i;
                     int y = j;
 
+                    int key = tiles[i][j];
+                    if (!dataBuildersMap.containsKey(key))
+                        dataBuildersMap.put(key, new VertexesBuilder(2));
 
+                    var dataBuilder = dataBuildersMap.get(key);
+                    dataBuilder.consumeVertexes(new float[]{x, y}, new float[]{x + 1, y}, new float[]{x + 1, y + 1});
+                    dataBuilder.consumeVertexes(new float[]{x, y}, new float[]{x, y + 1}, new float[]{x + 1, y + 1});
                 }
             }
         }
 
+        var floorsIds = dataBuildersMap.keys();
+        floorMeshes = new ObjectMap<>();
+        while (floorsIds.hasNext) {
+            var floorId = floorsIds.next();
+            var dataBuilder = dataBuildersMap.get(floorId);
+
+            var data = dataBuilder.build();
+
+            var mesh = new Mesh(true, data.left.length / 2, data.right.length, VertexAttribute.position);
+            mesh.setVertices(data.left);
+            mesh.setIndices(data.right);
+
+            floorMeshes.put((Floor) Vars.content.block(floorId), mesh);
+        }
     }
 
     public void init() {
@@ -151,8 +188,15 @@ public class BFRenderer {
 
         buffer.begin(Color.red);
 
-        Draw.rect(mapTextureRegion, Vars.world.unitWidth()/2f, Vars.world.unitHeight()/2f, Vars.world.unitWidth(), Vars.world.unitHeight());
-        Draw.rect(bordersTextureRegion, Vars.world.unitWidth()/2f, Vars.world.unitHeight()/2f, Vars.world.unitWidth(), Vars.world.unitHeight());
+        var floors = floorMeshes.keys();
+        for (Floor floor : floors) {
+            var mesh = floorMeshes.get(floor);
+            floor.region.texture.bind();
+            mesh.render(mainRenderShader, Gl.triangles);
+        }
+
+        /*Draw.rect(mapTextureRegion, Vars.world.unitWidth()/2f, Vars.world.unitHeight()/2f, Vars.world.unitWidth(), Vars.world.unitHeight());
+        Draw.rect(bordersTextureRegion, Vars.world.unitWidth()/2f, Vars.world.unitHeight()/2f, Vars.world.unitWidth(), Vars.world.unitHeight());*/
 
         buffer.end();
     }

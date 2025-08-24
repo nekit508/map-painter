@@ -61,11 +61,8 @@ public class ObjectEditorDialog extends BaseDialog {
         shown(this::build);
         setModal(false);
         Events.run(EventType.Trigger.update, () -> {
-            if (bind.active()) {
-                if (isShown())
-                    hide();
-                else show();
-            }
+            if (bind.active())
+                toggle();
         });
 
         addCloseButton();

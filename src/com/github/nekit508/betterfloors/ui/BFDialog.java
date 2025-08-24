@@ -20,11 +20,10 @@ public class BFDialog extends BaseDialog {
     public void build() {
         cont.clear();
 
-        cont.top().left();
+        cont.center();
         cont.table(tools -> {
             tools.top();
-            tools.labelWrap("@bfdialog-tools").growX().center();
-
+            tools.defaults().expand();
             tools.button("@bfdialog-generate-preset", Icon.file, Styles.flatt, () -> {
                 FileChooser.setLastDirectory(Vars.dataDirectory.child("presets"));
                 Vars.platform.showFileChooser(false, BFPreset.readableExtension, fi -> {
@@ -33,8 +32,8 @@ public class BFDialog extends BaseDialog {
                     preset.fillWithCurrentContent();
                     preset.writeReadable(fi);
                 });
-            });
-        }).expand();
+            }).width(200);
+        }).center();
 
         addCloseButton();
     }

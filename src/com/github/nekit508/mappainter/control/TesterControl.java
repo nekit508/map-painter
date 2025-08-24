@@ -5,10 +5,13 @@ import arc.input.KeyCode;
 import arc.math.geom.Vec2;
 import arc.scene.ui.Button;
 import arc.scene.ui.ButtonGroup;
+import arc.scene.ui.ImageButton;
 import arc.scene.ui.layout.Table;
 import com.github.nekit508.mappainter.content.MPFx;
 import com.github.nekit508.mappainter.control.keys.keyboard.KeyBinding;
-import com.github.nekit508.mappainter.ui.scene.CollapserWithHeader;
+import com.github.nekit508.mappainter.ui.MPUI;
+import com.github.nekit508.mappainter.ui.scene.OverlayCollapser;
+import mindustry.Vars;
 import mindustry.content.Fx;
 import mindustry.entities.Effect;
 import mindustry.gen.Icon;
@@ -31,26 +34,33 @@ public class TesterControl extends ControlReceiver {
         effectSelectors = new ButtonGroup<>();
         effectSelectors.setMinCheckCount(0);
 
-        group.fill(table -> {
-            table.top().left();
-            table.add(new CollapserWithHeader(
-                    col -> {
-                        col.defaults().growX();
-                        col.pane(pane -> {
-                            pane.defaults().growX();
+        group.fill(t -> {
+            t.left().top();
+            t.table(table -> {
+                table.left().top();
+                table.background(Styles.black3);
 
-                            addEffectsFromClassFields(MPFx.class, pane);
-                            addEffectsFromClassFields(Fx.class, pane);
-                        });
-                    },
-                    header -> {
-                        header.label(() -> "Effects list");
-                    },
-                    b -> {
-                        if (!b)
-                            effectSelectors.uncheckAll();
-                    }, false, true
-            ));
+                OverlayCollapser c;
+                table.stack(c = new OverlayCollapser(
+                        (colTable, col) -> {
+                            col.hideOnOutsideClick = false;
+
+                            colTable.defaults().growX();
+                            colTable.pane(pane -> {
+                                pane.defaults().growX();
+
+                                addEffectsFromClassFields(MPFx.class, pane);
+                                addEffectsFromClassFields(Fx.class, pane);
+                            });
+                        }, true
+                ), new ImageButton(Icon.book, Styles.emptyi){{
+                    clicked(c::toggle);
+                }}).left();
+
+                table.button("sprite reloader", Styles.cleart, () -> {
+                    MPUI.spriteReloaderDialog.toggle();
+                }).fill().minWidth(300).minHeight(32);
+            }).fill();
         });
 
         group.clicked(KeyCode.mouseRight, () -> {
@@ -72,7 +82,7 @@ public class TesterControl extends ControlReceiver {
         }).with(btn -> {
             effectSelectors.add(btn);
             btn.userObject = effect;
-        }).size(32);
+        }).size(Vars.iconMed).right();
 
         return out;
     }

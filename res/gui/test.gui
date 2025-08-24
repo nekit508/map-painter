@@ -1,1 +1,11 @@
-func create
+func create (labelText, buttonText, listener) {
+    defaults() {
+        growX() expandY() center()
+    }
+
+    center()
+
+    label(labelText)
+    row()
+    button(buttonText, cleart, listener) # btn1 [fillY()]
+}
