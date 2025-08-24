@@ -9,9 +9,13 @@ import arc.graphics.Color;
 import arc.graphics.PixmapIO;
 import arc.graphics.Pixmaps;
 import arc.graphics.g2d.PixmapRegion;
+import arc.graphics.g2d.TextureAtlas;
 import arc.graphics.g2d.TextureRegion;
 import arc.scene.style.TextureRegionDrawable;
 import arc.scene.ui.Button;
+import arc.scene.ui.Image;
+import arc.scene.ui.Label;
+import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
 import arc.scene.utils.Elem;
 import arc.struct.ObjectMap;
@@ -122,7 +126,7 @@ public class SpriteReloaderDialog extends BaseDialog {
             for (var entry : spriteWatchers) {
                 var watcher = entry.value;
 
-                list.image(watcher.region).size(Vars.iconMed);
+                spriteImage(list, watcher.region);
                 list.button(Icon.trash, Styles.emptyi, Vars.iconMed, () -> removeSpriteWatcherOf(watcher.region)).tooltip("remove watcher").size(Vars.iconMed);
                 list.label(() -> watcher.fi.absolutePath()).tooltip(tooltip -> tooltip.label(() -> watcher.fi.absolutePath()).expand());
 
@@ -156,7 +160,7 @@ public class SpriteReloaderDialog extends BaseDialog {
                         OverlayCollapser col;
                         list.stack(col = constructContextInfoFor((TextureRegion) obj),
                                 proc(Elem.newButton(spriteField.getName(), Styles.cleart, col::toggle), b -> {
-                                    b.image(new TextureRegionDrawable(obj != null ? (TextureRegion) obj : Core.atlas.find("error"))).size(Vars.iconMed);
+                                    spriteImage(b, (TextureRegion) obj);
                                     b.getCells().reverse();
                                 })
                         ).row();
@@ -168,7 +172,7 @@ public class SpriteReloaderDialog extends BaseDialog {
                                 colTable.stack(col = constructContextInfoFor(region),
                                         proc(Elem.newButton("", Styles.cleart, col::toggle), b -> {
                                             b.center();
-                                            b.image(new TextureRegionDrawable(region != null ? region : Core.atlas.find("error"))).size(Vars.iconMed).center();
+                                            spriteImage(b, region).center();
                                             b.getCells().reverse();
                                         })
                                 ).size(500, Vars.iconMed).row();
@@ -189,7 +193,23 @@ public class SpriteReloaderDialog extends BaseDialog {
         });
     }
 
+    protected TextureRegion getErrorRegion() {
+        return Core.atlas.find("error");
+    }
+
+    protected boolean isRegionAdjustable(TextureRegion region) {
+        return region != null && region != getErrorRegion();
+    }
+
     protected OverlayCollapser constructContextInfoFor(TextureRegion region) {
+        if (!isRegionAdjustable(region))
+            return new OverlayCollapser((colTable, col) -> {
+                colTable.background(Styles.black9);
+                colTable.image().color(Pal.power).fillX().row();
+                colTable.label(() -> "Null and error regions are not adjustable.").expandX().row();
+                colTable.image().color(Pal.power).fillX().row();
+            }, true);
+
         var outlineData = new OutlineData(true, Color.clear, 0);
         var content = selectedContent();
         if (content instanceof Block b) {
@@ -205,7 +225,7 @@ public class SpriteReloaderDialog extends BaseDialog {
             colTable.image().color(Pal.power).fillX().colspan(3).row();
 
             colTable.button(Icon.eyeOff, Styles.cleari, Vars.iconMed, () -> {
-                if (region == null) return;
+                if (!isRegionAdjustable(region)) return;
 
                 if (!spriteWatchers.containsKey(region))
                     Vars.platform.showFileChooser(true, "png", fi -> {
@@ -215,11 +235,11 @@ public class SpriteReloaderDialog extends BaseDialog {
                 else
                     removeSpriteWatcherOf(region);
             }).update(b ->
-                    b.getStyle().imageUp = spriteWatchers.containsKey(region) ? Icon.eye : Icon.eyeOff
+                    b.getStyle().imageUp = (region != null && spriteWatchers.containsKey(region)) ? Icon.eye : Icon.eyeOff
             ).tooltip(tooltip ->
-                    tooltip.label(() -> spriteWatchers.containsKey(region) ? spriteWatchers.get(region).fi.absolutePath() : "").expand()
+                    tooltip.label(() -> (region != null && spriteWatchers.containsKey(region)) ? spriteWatchers.get(region).fi.absolutePath() : "Add watcher").expand()
             );
-            colTable.check("", b -> outlineData.needed = b).with(check -> check.setChecked(outlineData.needed));
+            colTable.check("", b -> outlineData.needed = b).with(check -> check.setChecked(outlineData.needed)).tooltip("Generate outline");
             colTable.button("load", Icon.download, Styles.cleart, Vars.iconMed, () -> {
                 if (region == null)
                     ;
@@ -228,7 +248,7 @@ public class SpriteReloaderDialog extends BaseDialog {
                         loadSpriteFromInto(fi, region, outlineData);
                         c.toggle();
                     });
-            }).width(200).row();
+            }).width(200).tooltip("Load from file").row();
             colTable.image().color(Pal.power).fillX().colspan(3).row();
         }, true);
     }
@@ -241,6 +261,22 @@ public class SpriteReloaderDialog extends BaseDialog {
     protected void removeSpriteWatcherOf(TextureRegion region) {
         spriteWatchers.remove(region);
         if (isShown()) rebuildWatchersList();
+    }
+
+    protected Cell<Image> spriteImage(Table table, TextureRegion sprite) {
+        var drawable = new TextureRegionDrawable(sprite != null ? sprite : Core.atlas.find("error"));
+        return table.image(drawable).size(Vars.iconMed).tooltip(tooltip -> {
+            tooltip.defaults().center();
+            if (sprite instanceof TextureAtlas.AtlasRegion atlasRegion)
+                tooltip.stack(
+                        new Image(Styles.black9),
+                        proc(new Label(atlasRegion.name), l -> l.setAlignment(Align.center))
+                ).expandX().row();
+            tooltip.stack(new Image(Styles.black9), new Image(drawable)).size(Math.min(
+                    drawable.imageSize() * 2,
+                    Math.min(Core.graphics.getWidth(), Core.graphics.getHeight()) * 0.5f
+            ));
+        });
     }
 
     public static void loadSpriteFromInto(Fi file, TextureRegion region, OutlineData outline) {
@@ -262,6 +298,7 @@ public class SpriteReloaderDialog extends BaseDialog {
         }
 
         region.texture.draw(sprite, region.getX(), region.getY());
+        sprite.dispose();
     }
 
     protected <T> T proc(T obj, Cons<T> cons) {
