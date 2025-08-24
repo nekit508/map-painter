@@ -34,6 +34,7 @@ import mindustry.graphics.Pal;
 import mindustry.type.UnitType;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
+import mindustry.ui.dialogs.FileChooser;
 import mindustry.world.Block;
 
 import java.lang.reflect.Field;
@@ -117,8 +118,18 @@ public class SpriteReloaderDialog extends BaseDialog {
     protected void rebuildWatchersList() {
         watchers.reset();
         watchers.top().right();
-        watchers.defaults().growX();
-        watchers.labelWrap("Active watchers").with(l -> l.setAlignment(Align.center)).height(Vars.iconMed).row();
+        watchers.button(Icon.save, Styles.emptyi, Vars.iconMed, () -> {
+            FileChooser.setLastDirectory(Vars.dataDirectory.child("map-painter").child("sprite-watchers-presets"));
+            Vars.platform.showFileChooser(false, "bin", this::saveWatchersList);
+        }).tooltip("save watchers list").size(Vars.iconMed);
+        watchers.button(Icon.upload, Styles.emptyi, Vars.iconMed, () -> {
+            FileChooser.setLastDirectory(Vars.dataDirectory.child("map-painter").child("sprite-watchers-presets"));
+            Vars.platform.showFileChooser(true, "bin", fi -> {
+                loadWatchersList(fi);
+                rebuildWatchersList();
+            });
+        }).tooltip("load watchers list").size(Vars.iconMed);
+        watchers.labelWrap("Active watchers").with(l -> l.setAlignment(Align.center)).height(Vars.iconMed).growX().row();
         watchers.pane(list -> {
             list.top();
             list.defaults().growX();
@@ -279,6 +290,53 @@ public class SpriteReloaderDialog extends BaseDialog {
         });
     }
 
+    public void loadWatchersList(Fi file) {
+        spriteWatchers.clear();
+        var reads = file.reads();
+
+        var size = reads.i();
+        for (int i = 0; i < size; i++) {
+            var regionName = reads.str();
+            var loadedTime = reads.l();
+            var fi = new Fi(reads.str());
+            var needed = reads.bool();
+            var radius = reads.i();
+            var color = new Color().rgba8888(reads.i());
+
+            var region = Core.atlas.find(regionName);
+            if (!isRegionAdjustable(region)) {
+                Log.warn("[SpriteReloaderDialog] Region with name @ not founded in atlas.", regionName);
+                continue;
+            }
+
+            var watcher = new SpriteWatcher(region, fi, new OutlineData(needed, color, radius));
+            watcher.loadedTime = loadedTime;
+
+            spriteWatchers.put(region, watcher);
+        }
+
+        reads.close();
+    }
+
+    public void saveWatchersList(Fi file) {
+        var writes = file.writes();
+
+        Log.warn("[SpriteReloaderDialog] All unnamed regions will be skipped.");
+        var keys = spriteWatchers.keys().toSeq().retainAll(k -> k instanceof TextureAtlas.AtlasRegion).map(k -> (TextureAtlas.AtlasRegion) k);
+        writes.i(keys.size);
+        for (var key : keys) {
+            writes.str(key.name);
+            var watcher = spriteWatchers.get(key);
+            writes.l(watcher.loadedTime);
+            writes.str(watcher.fi.absolutePath());
+            writes.bool(watcher.data.needed);
+            writes.i(watcher.data.radius);
+            writes.i(watcher.data.color.rgba8888());
+        }
+
+        writes.close();
+    }
+
     public static void loadSpriteFromInto(Fi file, TextureRegion region, OutlineData outline) {
         var sprite = PixmapIO.readPNG(file);
 
@@ -353,7 +411,7 @@ public class SpriteReloaderDialog extends BaseDialog {
             this.region = region;
             this.fi = fi;
             this.data = data;
-            loadedTime= fi.lastModified();
+            loadedTime = fi.lastModified();
         }
 
         public void update() {
