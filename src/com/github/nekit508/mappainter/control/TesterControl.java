@@ -9,11 +9,13 @@ import arc.scene.ui.ImageButton;
 import arc.scene.ui.layout.Table;
 import com.github.nekit508.mappainter.content.MPFx;
 import com.github.nekit508.mappainter.control.keys.keyboard.KeyBinding;
+import com.github.nekit508.mappainter.map.generator.WFCBaseGenerator;
 import com.github.nekit508.mappainter.ui.MPUI;
 import com.github.nekit508.mappainter.ui.scene.OverlayCollapser;
 import mindustry.Vars;
 import mindustry.content.Fx;
 import mindustry.entities.Effect;
+import mindustry.game.Team;
 import mindustry.gen.Icon;
 import mindustry.ui.Styles;
 
@@ -59,6 +61,10 @@ public class TesterControl extends ControlReceiver {
 
                 table.button("sprite reloader", Styles.cleart, () -> {
                     MPUI.spriteReloaderDialog.toggle();
+                }).fill().minWidth(300).minHeight(32);
+
+                table.button("wfc generator", Styles.cleart, () -> {
+                    new WFCBaseGenerator().generate(Team.crux);
                 }).fill().minWidth(300).minHeight(32);
             }).fill();
         });

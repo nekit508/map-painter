@@ -84,8 +84,8 @@ public class MPCore extends Mod {
 
             ammo(
                     Items.surgeAlloy, new MissileBulletType(9f, 18){{
-                        velocityScaleRandMin = 0.95f;
-                        velocityScaleRandMax = 1.05f;
+                        velocityScaleRandMin = 0.9f;
+                        velocityScaleRandMax = 1.1f;
 
                         homingPower = 0;
                         width = 4f;
@@ -187,6 +187,7 @@ public class MPCore extends Mod {
                         ammoMultiplier = 1;
                         hitColor = backColor = trailColor = Pal.powerLight;
                         frontColor = Pal.powerLight;
+                        hitSound = Sounds.explosion;
 
                         fragBullet = new ShrapnelBulletType(){{
                             serrations = 1;
@@ -211,7 +212,7 @@ public class MPCore extends Mod {
             targetGround = false;
             targetBlocks = false;
 
-            shootY = 16f;
+            shootY = 12f;
             reload = 180f;
             inaccuracy = 5f;
             range = 800f;
@@ -222,6 +223,8 @@ public class MPCore extends Mod {
             shootSound = Sounds.shootBig;
             envEnabled |= Env.any;
             ammoPerShot = 20;
+
+            ammoUseEffect = Fx.casing2;
 
             recoil = 3f;
             recoilTime = 9f;
