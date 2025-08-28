@@ -9,6 +9,7 @@ import arc.scene.ui.ImageButton;
 import arc.scene.ui.layout.Table;
 import com.github.nekit508.mappainter.content.MPFx;
 import com.github.nekit508.mappainter.control.keys.keyboard.KeyBinding;
+import com.github.nekit508.mappainter.core.MPCore;
 import com.github.nekit508.mappainter.map.generator.WFCBaseGenerator;
 import com.github.nekit508.mappainter.ui.MPUI;
 import com.github.nekit508.mappainter.ui.scene.OverlayCollapser;
@@ -66,6 +67,11 @@ public class TesterControl extends ControlReceiver {
                 table.button("wfc generator", Styles.cleart, () -> {
                     new WFCBaseGenerator().generate(Team.crux);
                 }).fill().minWidth(300).minHeight(32);
+
+                table.slider(1, 89, 1, f -> MPCore.directionalLighting.sunElevation(f))
+                        .with(s -> s.setValue(MPCore.directionalLighting.sunElevation())).fill().minWidth(300).minHeight(32);
+                table.slider(0, 360, 1, f -> MPCore.directionalLighting.sunAzimuth(f))
+                        .with(s -> s.setValue(MPCore.directionalLighting.sunAzimuth())).fill().minWidth(300).minHeight(32);
             }).fill();
         });
 

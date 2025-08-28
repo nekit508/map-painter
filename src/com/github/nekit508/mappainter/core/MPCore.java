@@ -10,7 +10,9 @@ import com.github.nekit508.mappainter.control.MPControl;
 import com.github.nekit508.mappainter.control.MPKeyBindings;
 import com.github.nekit508.mappainter.files.InternalFileTree;
 import com.github.nekit508.mappainter.graphics.MPRenderer;
+import com.github.nekit508.mappainter.graphics.MPShaders;
 import com.github.nekit508.mappainter.graphics.figure.*;
+import com.github.nekit508.mappainter.graphics.DirectionalLighting;
 import com.github.nekit508.mappainter.net.packets.MPPackets;
 import com.github.nekit508.mappainter.register.BaseRegistries;
 import com.github.nekit508.mappainter.ui.MPUI;
@@ -46,22 +48,26 @@ public class MPCore extends Mod {
 
     public static MPCore instance;
 
+    public static DirectionalLighting directionalLighting;
+
     public MPCore() {
         instance = this;
 
         if (loadBetterFloors)
             betterFloorsCore = new BetterFloorsCore();
-
-        figuresManager = new MPFiguresManager();
-        SaveVersion.addCustomChunk("map-painter-figures-custom-chunk", figuresManager);
-
-        MPPackets.init();
-
-        control = new MPControl();
     }
 
     @Override
     public void loadContent() {
+        figuresManager = new MPFiguresManager();
+        SaveVersion.addCustomChunk("map-painter-figures-custom-chunk", figuresManager);
+
+        MPShaders.load();
+        MPPackets.init();
+
+        control = new MPControl();
+        directionalLighting = new DirectionalLighting();
+
         if (loadBetterFloors)
             betterFloorsCore.loadContent();
 
