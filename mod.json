@@ -1,9 +1,15 @@
 {
-    "main": "com.github.nekit508.mappainter.core.MPCore",
-    "name": "map-painter",
-    "version": "v0.2.0",
-    "minGameVersion": "150",
     "displayName": "Map painter",
     "author": "nekit508",
-    "java": true
+    "main": "com.github.nekit508.mappainter.core.MPCore",
+    "softDependencies": [
+        
+    ],
+    "version": "v0.2.0",
+    "dependencies": [
+        "mindustry-extended-keybinds"
+    ],
+    "java": true,
+    "name": "map-painter",
+    "minGameVersion": 151
 }

@@ -1,5 +1,6 @@
 {
   "build": {
+    "_comment": "//TODO fix pl framework",
     "useAndroid": false,
     "sdkRoot": "D:\\soft\\android-sdk"
   },

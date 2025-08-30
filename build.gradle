@@ -23,7 +23,7 @@ group = modGroup
 nmp.core project, "core"
 
 core.configure {
-    genericInit()
+    genericModInit()
 
     core.configureTasks {
         nmpGenerateModInfo {
@@ -31,6 +31,8 @@ core.configure {
 
             modAuthor = "nekit508"
             modDisplayName = "Map painter"
+
+            modDependencies.add "mindustry-extended-keybinds"
         }
 
         compileJava {
@@ -41,8 +43,11 @@ core.configure {
     }
 
     dependencies {
-        implementation ("com.github.nekit508:pl-compiler-framework:$plCompilerFramework") {
+        implementation ("com.github.nekit508:pl-compiler-framework:$plCompilerFrameworkVersion") {
             exclude group: "com.github.Anuken.Arc", module: "arc-core"
+        }
+        compileOnly ("com.github.nekit508:mindustry-extended-keybinds:$extendedKeybindsVersion") {
+            //exclude group: "com.github.Anuken.Arc", module: "arc-core"
         }
     }
 }

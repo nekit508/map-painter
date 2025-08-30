@@ -8,7 +8,7 @@ import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.Time;
 import arc.util.Tmp;
-import com.github.nekit508.mappainter.control.keys.keyboard.KeyBinding;
+import com.github.nekit508.emkb.control.keys.keyboard.KeyBinding;
 import mindustry.Vars;
 import mindustry.game.EventType;
 

@@ -1,13 +1,14 @@
 package com.github.nekit508.mappainter.control;
 
 import arc.input.KeyCode;
-import com.github.nekit508.mappainter.control.keys.Category;
-import com.github.nekit508.mappainter.control.keys.keyboard.KeyCodeKeyAdjustableBinding;
+import com.github.nekit508.emkb.control.keys.Category;
+import com.github.nekit508.emkb.control.keys.keyboard.KeyCodeKeyAdjustableBinding;
 
 public enum MPKeyBindings implements KeyCodeKeyAdjustableBinding {
     openPainter(KeyCode.l, Type.tap, "mp-open-painter", MPCategories.dialogs),
     openTester(KeyCode.f7, Type.tap, "mp-open-tester", MPCategories.dialogs),
     openObjectEditor(KeyCode.f12, Type.tap, "mp-open-object-editor", MPCategories.dialogs),
+    openONormalMapTester(KeyCode.minus, Type.tap, "mp-open-normal-map-painter", MPCategories.dialogs),
 
     moveBoost(KeyCode.shiftLeft, Type.tap, "mp-camera-move-boost", MPCategories.camera);
 

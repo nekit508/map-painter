@@ -1,8 +1,8 @@
 package com.github.nekit508.mappainter.control;
 
 import arc.input.KeyCode;
-import com.github.nekit508.mappainter.control.keys.Category;
-import com.github.nekit508.mappainter.control.keys.axis.KeyCodeAxisAdjustableBinding;
+import com.github.nekit508.emkb.control.keys.Category;
+import com.github.nekit508.emkb.control.keys.axis.KeyCodeAxisAdjustableBinding;
 
 public enum MPAxisBindings implements KeyCodeAxisAdjustableBinding {
     moveX(MPCategories.camera, "camera-move-x", KeyCode.d, KeyCode.a),

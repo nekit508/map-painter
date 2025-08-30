@@ -2,6 +2,7 @@ package com.github.nekit508.mappainter.core;
 
 import arc.graphics.Color;
 import com.github.nekit508.betterfloors.core.BetterFloorsCore;
+import com.github.nekit508.emkb.core.EMKBCore;
 import com.github.nekit508.mappainter.content.MPDistribution;
 import com.github.nekit508.mappainter.content.MPFx;
 import com.github.nekit508.mappainter.content.MPOilProduction;
@@ -9,10 +10,10 @@ import com.github.nekit508.mappainter.control.MPAxisBindings;
 import com.github.nekit508.mappainter.control.MPControl;
 import com.github.nekit508.mappainter.control.MPKeyBindings;
 import com.github.nekit508.mappainter.files.InternalFileTree;
+import com.github.nekit508.mappainter.graphics.DirectionalLighting;
 import com.github.nekit508.mappainter.graphics.MPRenderer;
 import com.github.nekit508.mappainter.graphics.MPShaders;
 import com.github.nekit508.mappainter.graphics.figure.*;
-import com.github.nekit508.mappainter.graphics.DirectionalLighting;
 import com.github.nekit508.mappainter.net.packets.MPPackets;
 import com.github.nekit508.mappainter.register.BaseRegistries;
 import com.github.nekit508.mappainter.ui.MPUI;
@@ -77,7 +78,7 @@ public class MPCore extends Mod {
         MPOilProduction.init();
 
         BaseRegistries.blocks.register("radar", () -> new Radar("radar"){{
-            size = 3;
+            size = 2;
             health = 180;
             hasPower = true;
             consumePower(360f / 60f);
@@ -273,8 +274,8 @@ public class MPCore extends Mod {
 
         MPUI.init();
 
-        MPUI.keybindsDialog.addKeybindings(MPKeyBindings.values());
-        MPUI.keybindsDialog.addKeybindings(MPAxisBindings.values());
+        EMKBCore.dialog.addKeybindings(MPKeyBindings.values());
+        EMKBCore.dialog.addKeybindings(MPAxisBindings.values());
 
         renderer = new MPRenderer();
 

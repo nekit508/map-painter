@@ -9,7 +9,7 @@ import arc.scene.actions.Actions;
 import arc.scene.ui.ButtonGroup;
 import arc.scene.ui.TextButton;
 import arc.scene.ui.layout.Table;
-import com.github.nekit508.mappainter.control.keys.keyboard.KeyBinding;
+import com.github.nekit508.emkb.control.keys.keyboard.KeyBinding;
 import com.github.nekit508.mappainter.core.MPCore;
 import com.github.nekit508.mappainter.graphics.figure.FigureType;
 import com.github.nekit508.mappainter.ui.scene.RadialMenu;

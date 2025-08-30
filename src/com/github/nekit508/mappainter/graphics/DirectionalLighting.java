@@ -14,10 +14,12 @@ import arc.math.Mathf;
 import arc.math.geom.QuadTree;
 import arc.math.geom.Rect;
 import arc.math.geom.Vec2;
+import arc.struct.ObjectSet;
 import arc.util.Tmp;
 import mindustry.Vars;
 import mindustry.content.Blocks;
 import mindustry.game.EventType;
+import mindustry.gen.Building;
 import mindustry.graphics.Layer;
 import mindustry.world.Block;
 import mindustry.world.Tile;
@@ -33,21 +35,26 @@ public class DirectionalLighting {
 
     protected Shader shadowsBufferShader = MPShaders.shadowsBufferShader;
     protected Shader shadowShader = MPShaders.shadowShader;
+    protected MPShaders.NormalsShader normalsShader = MPShaders.normalsShader;
 
     protected BlockShadowQuadTree tree;
 
     protected ShadowsBatch batch;
     protected FrameBuffer shadowBuffer;
+    protected FrameBuffer normalsBuffer;
 
     protected FloatFloatf heightToAlphaScale = h -> (float) (1 / Math.exp(h / heightScale * Vars.tilesize * 0.015));
 
     /*protected SpriteBatchWrapper batchWrapper; // TODO very buggy sprite capturing
     protected Seq<Seq<SpriteBatchWrapper.DrawRecord>> records = new Seq<>();*/
 
+    protected Color normalsBufferFiller = new Color(0f, 0f, 1f, 1f);
+
     public DirectionalLighting() {
         try {
             batch = new ShadowsBatch(4096);
             shadowBuffer = new FrameBuffer();
+            normalsBuffer = new FrameBuffer();
 
             Events.on(EventType.WorldLoadEvent.class, event -> reload());
             Events.run(EventType.Trigger.draw, this::render);
@@ -79,15 +86,13 @@ public class DirectionalLighting {
             tree.insert(tile);
     }
 
+    protected ObjectSet<Building> tmp$buildings = new ObjectSet<>();
     /** Render shadows into buffer. */
     public void render() {
-        recomputeScales();
+        recompute();
 
-        if (Core.graphics.getWidth() != shadowBuffer.getWidth() || Core.graphics.getHeight() != shadowBuffer.getHeight()) {
-            shadowBuffer.resize(Core.graphics.getWidth(), Core.graphics.getHeight());
+        if (shadowBuffer.resizeCheck(Core.graphics.getWidth(), Core.graphics.getHeight()))
             shadowBuffer.getTexture().setFilter(Texture.TextureFilter.linear, Texture.TextureFilter.linear);
-        }
-
         Draw.batch(batch, () -> {
             Draw.proj(Core.camera);
 
@@ -110,11 +115,27 @@ public class DirectionalLighting {
             Gl.blendEquationSeparate(Gl.funcAdd, Gl.funcAdd);
             Draw.blend(b);
         });
+
+        if (normalsBuffer.resizeCheck(Core.graphics.getWidth(), Core.graphics.getHeight()))
+            normalsBuffer.getTexture().setFilter(Texture.TextureFilter.linear, Texture.TextureFilter.linear);
+        normalsBuffer.begin(normalsBufferFiller);
+        tmp$buildings.clear();
+        tree.intersect(Core.camera.bounds(Tmp.r1), tile -> {
+            if (tile.build != null && tile.block().size == 2)
+                tmp$buildings.add(tile.build);
+        });
+        tmp$buildings.each(this::renderNormal);
+        normalsBuffer.end();
+    }
+
+    protected void renderNormal(Building building) {
+        Draw.rect(Core.atlas.find("map-painter-normal-map"), building.x, building.y);
     }
 
     /** Blit buffer onto screen. */
     public void draw() {
         Draw.draw(Layer.block - 1, () -> shadowBuffer.blit(shadowsBufferShader));
+        Draw.draw(Layer.blockOver + 5, () -> normalsBuffer.blit(normalsShader));
     }
 
     public void renderTile(Tile tile) {
@@ -289,8 +310,10 @@ public class DirectionalLighting {
             return block.size * Vars.tilesize * (block.underBullets ? 0.2f : 1f);
     }
 
-    public void recomputeScales() {
+    public void recompute() {
         if (!sunPosChanged) return;
+
+        normalsShader.setSunState(sunAzimuth, sunElevation);
 
         heightScale = (float) (1 / Math.tan(Mathf.degreesToRadians * sunElevation));
         xOffsetScale = -Mathf.cosDeg(sunAzimuth) * heightScale;
