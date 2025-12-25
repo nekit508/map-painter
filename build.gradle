@@ -2,60 +2,61 @@ plugins {
     id "com.github.nekit508.mindustry-mod-plugin" version "$nmpVersion" apply true
 }
 
-allprojects.each {
-    it.apply plugin: "java"
-    it.apply plugin: "idea"
+import com.github.nekit508.nmp.NMPlugin
+import com.github.nekit508.nmp.tasks.core.GenerateModInfoTask
 
-    it.repositories {
+allprojects.each { project ->
+    project.repositories {
         mavenCentral()
         mavenLocal()
         maven { url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
         maven { url "https://www.jitpack.io" }
     }
 
-    it.sourceSets.main.java.srcDirs = ["src", "gen"]
-    it.sourceSets.main.resources.srcDirs = ["res"]
+    project.apply plugin: "java"
 }
 
-version = modVersion
+apply plugin: NMPlugin
+apply plugin: "java-library"
+apply plugin: "maven-publish"
+
 group = modGroup
+version = modVersion
 
-nmp.core project, "core"
+nmp.core project, "core", true, group
+nmp.entityAnno project, "eanno", core, true
 
-core.configure {
-    genericModInit()
-
-    core.configureTasks {
-        nmpGenerateModInfo {
-            modMain = "com.github.nekit508.mappainter.core.MPCore"
-
-            modAuthor = "nekit508"
-            modDisplayName = "Map painter"
-
-            modDependencies.add "mindustry-extended-keybinds"
-        }
-
-        compileJava {
-            options.compilerArgs += [
-                    "-Acom.github.nekit508.annotations.ioproc.IOProc.logIOMethods=false"
-            ]
-        }
+dependencies {
+    implementation ("com.github.nekit508:pl-compiler-framework:$plCompilerFrameworkVersion") {
+        exclude group: "com.github.Anuken.Arc", module: "arc-core"
     }
-
-    dependencies {
-        implementation ("com.github.nekit508:pl-compiler-framework:$plCompilerFrameworkVersion") {
-            exclude group: "com.github.Anuken.Arc", module: "arc-core"
-        }
-        compileOnly ("com.github.nekit508:mindustry-extended-keybinds:$extendedKeybindsVersion") {
-            //exclude group: "com.github.Anuken.Arc", module: "arc-core"
-        }
+    compileOnly ("com.github.nekit508:mindustry-extended-keybinds:$extendedKeybindsVersion") {
+        //exclude group: "com.github.Anuken.Arc", module: "arc-core"
     }
 }
 
-core.settings {
-    modName.set project.name
-    modGroup.set project.group as String
-    modVersion.set project.version as String
-    mindustryVersion.set prop("mindustryVersion") as String
-    generateModInfo.set true
+core.with {
+    core.configureTasks {
+        nmpGenerateModInfo { GenerateModInfoTask task ->
+            task.set(
+                    "author": "nekit508",
+                    "description": "Map painter.",
+                    "repo": "https://github.com/nekit508/map-painter",
+                    "main": "com.github.nekit508.mappainter.core.MPCore"
+            )
+            task.modDependencies.addAll("mindustry-extended-keybinds")
+        }
+    }
+
+    nmp.setting {
+        modVersion.set prop("modVersion") as String
+        mindustryVersion.set prop("mindustryVersion") as String
+    }
+}
+
+eanno.with {
+    nmp.setting {
+        genPackage.set "com.github.nekit508.mappainter.gen"
+        entityAnnoVersion.set prop("entityAnnoVersion") as String
+    }
 }

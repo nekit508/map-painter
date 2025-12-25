@@ -1,6 +1,7 @@
 {
-    "displayName": "Map painter",
     "author": "nekit508",
+    "repo": "https://github.com/nekit508/map-painter",
+    "description": "Map painter.",
     "main": "com.github.nekit508.mappainter.core.MPCore",
     "softDependencies": [
         
@@ -11,5 +12,5 @@
     ],
     "java": true,
     "name": "map-painter",
-    "minGameVersion": 151
+    "minGameVersion": "151"
 }

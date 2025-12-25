@@ -17,7 +17,7 @@ import com.github.nekit508.mappainter.graphics.figure.*;
 import com.github.nekit508.mappainter.net.packets.MPPackets;
 import com.github.nekit508.mappainter.register.BaseRegistries;
 import com.github.nekit508.mappainter.ui.MPUI;
-import com.github.nekit508.mappainter.world.blocks.misc.Radar;
+import com.github.nekit508.mappainter.world.blocks.misc.NormalBlock;
 import mindustry.content.Fx;
 import mindustry.content.Items;
 import mindustry.entities.bullet.*;
@@ -77,11 +77,9 @@ public class MPCore extends Mod {
         MPDistribution.init();
         MPOilProduction.init();
 
-        BaseRegistries.blocks.register("radar", () -> new Radar("radar"){{
+        BaseRegistries.blocks.register("radar", () -> new NormalBlock("radar"){{
             size = 2;
             health = 180;
-            hasPower = true;
-            consumePower(360f / 60f);
 
             requirements(Category.effect, ItemStack.with(Items.silicon, 140, Items.lead, 60, Items.titanium, 30, Items.copper, 85));
         }});

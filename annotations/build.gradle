@@ -1,20 +1,12 @@
-nmp.anno(project, "anno", nmp.project.core)
+nmp.anno project, "anno", nmp.project.core
 
-anno.configure {
-    genericInit()
-
+anno.with { anno ->
     configureTasks {
         nmpaGenerateProcessorsFile {
             triggerString.set "@AnnotationProcessor"
-
-            project.tasks.jar.from {
-                temporaryDir
-            }
         }
 
         compileJava {
-            dependsOn project.tasks.nmpaGenerateProcessorsFile
-
             options.compilerArgs += [
                     "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
                     "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
@@ -47,10 +39,13 @@ anno.configure {
             }
         }
     }
-}
 
-dependencies {
-    implementation "com.palantir.javapoet:javapoet:0.7.0"
-    implementation "com.github.javaparser:javaparser-core:3.27.0"
-    implementation nmp.arcDependency(mindustryVersion)
+    nmp.configuration {
+        dependencies {
+            implementation "com.palantir.javapoet:javapoet:0.7.0"
+            implementation "com.github.javaparser:javaparser-core:3.27.0"
+            anno.core.mindustryVersion.finalizeValue()
+            implementation nmp.arcDependency(anno.core.mindustryVersion.get())
+        }
+    }
 }

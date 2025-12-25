@@ -35,8 +35,6 @@ import java.util.stream.Stream;
         "com.github.nekit508.annotations.ioproc.IOProc.logIOMethods"
 })
 public class IOProcessor extends BaseProcessor {
-    protected long tempVarId = 0;
-
     public HashMap<TypeMirror, IOMethodProvider> ioProviders = new LinkedHashMap<>();
     public HashMap<JCTree.JCMethodDecl, Integer> uniProvidersTypes = new LinkedHashMap<>();
 

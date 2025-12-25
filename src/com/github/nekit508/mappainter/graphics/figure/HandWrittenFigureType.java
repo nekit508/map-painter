@@ -21,6 +21,7 @@ public class HandWrittenFigureType extends FigureType {
         super(name);
     }
 
+    @IOAnnotations.GenObject
     public class HandWrittenFigure extends Figure implements IO {
         @IOAnnotations.GenObject.Gen
         public float minx = Vars.world.unitWidth(), miny = Vars.world.unitHeight(), maxx = 0, maxy = 0;

@@ -34,14 +34,11 @@ public class MPShaders {
 
         public NormalsShader() {
             super("normals/vert", "normals/frag");
-            //normalMap = new Texture(new PixmapTextureData(PixmapIO.readPNG(MPCore.files.child("normal-map.png")), false, false));
         }
 
         @Override
         public void apply() {
             super.apply();
-            //normalMap.bind(1);
-            //setUniformi("u_normalMap", 1);
             setUniformf("u_sunAzimuth", sunAzimuth * Mathf.degreesToRadians);
             setUniformf("u_sunElevation", sunElevation * Mathf.degreesToRadians);
         }
