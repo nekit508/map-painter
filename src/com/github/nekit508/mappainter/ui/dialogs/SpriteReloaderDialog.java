@@ -23,6 +23,7 @@ import arc.struct.Seq;
 import arc.util.Align;
 import arc.util.Log;
 import arc.util.Nullable;
+import arc.util.Strings;
 import com.github.nekit508.mappainter.ui.scene.CollapserWithHeader;
 import com.github.nekit508.mappainter.ui.scene.OverlayCollapser;
 import mindustry.Vars;
@@ -117,7 +118,7 @@ public class SpriteReloaderDialog extends BaseDialog {
 
     protected void rebuildWatchersList() {
         watchers.reset();
-        watchers.top().right();
+        watchers.top().right().defaults().pad(5);
         watchers.button(Icon.save, Styles.emptyi, Vars.iconMed, () -> {
             FileChooser.setLastDirectory(Vars.dataDirectory.child("map-painter").child("sprite-watchers-presets"));
             Vars.platform.showFileChooser(false, "bin", this::saveWatchersList);
@@ -132,18 +133,21 @@ public class SpriteReloaderDialog extends BaseDialog {
         watchers.labelWrap("Active watchers").with(l -> l.setAlignment(Align.center)).height(Vars.iconMed).growX().row();
         watchers.pane(list -> {
             list.top();
-            list.defaults().growX();
+            list.defaults().growX().pad(5);
 
             for (var entry : spriteWatchers) {
                 var watcher = entry.value;
 
                 spriteImage(list, watcher.region);
+                list.button(Icon.eye, Styles.clearNonei, Vars.iconMed, () -> {
+                    watcher.enabled = !watcher.enabled;
+                }).update(b -> b.getStyle().imageUp = watcher.enabled ? Icon.eye : Icon.eyeOff).size(Vars.iconMed);
                 list.button(Icon.trash, Styles.emptyi, Vars.iconMed, () -> removeSpriteWatcherOf(watcher.region)).tooltip("remove watcher").size(Vars.iconMed);
                 list.label(() -> watcher.fi.absolutePath()).tooltip(tooltip -> tooltip.label(() -> watcher.fi.absolutePath()).expand());
 
                 list.row();
             }
-        }).growY().top();
+        }).growY().top().colspan(3);
     }
 
     protected void rebuildContentInfo() {
@@ -256,7 +260,11 @@ public class SpriteReloaderDialog extends BaseDialog {
                     ;
                 else
                     Vars.platform.showFileChooser(true, "png", fi -> {
-                        loadSpriteFromInto(fi, region, outlineData);
+                        try {
+                            loadSpriteFromInto(fi, region, outlineData);
+                        } catch (SpriteLoadingException e) {
+                            Vars.ui.showInfo(e.getMessage());
+                        }
                         c.toggle();
                     });
             }).width(200).tooltip("Load from file").row();
@@ -337,7 +345,7 @@ public class SpriteReloaderDialog extends BaseDialog {
         writes.close();
     }
 
-    public static void loadSpriteFromInto(Fi file, TextureRegion region, OutlineData outline) {
+    public static void loadSpriteFromInto(Fi file, TextureRegion region, OutlineData outline) throws SpriteLoadingException {
         var sprite = PixmapIO.readPNG(file);
 
         if (outline.needed) {
@@ -347,12 +355,11 @@ public class SpriteReloaderDialog extends BaseDialog {
         }
 
         if (region.width != sprite.width || region.height != sprite.height) {
-            Log.err(
-                    "Wrong sprite sizes. old: @x@ new: @x@.",
+            throw new SpriteLoadingException(Strings.format(
+                    "Wrong sprite sizes!\nold: @x@\nnew: @x@",
                     region.width, region.height,
                     sprite.width, sprite.height
-            );
-            return;
+            ));
         }
 
         region.texture.draw(sprite, region.getX(), region.getY());
@@ -404,6 +411,8 @@ public class SpriteReloaderDialog extends BaseDialog {
         public TextureRegion region;
         public Fi fi;
         public OutlineData data;
+        public boolean enabled = true;
+        public String message;
 
         protected long loadedTime;
 
@@ -415,6 +424,9 @@ public class SpriteReloaderDialog extends BaseDialog {
         }
 
         public void update() {
+            if (!enabled)
+                return;
+
             var lm = fi.file().lastModified();
             if (lm != loadedTime && System.currentTimeMillis() - lm >= 1000) {
                 reload();
@@ -423,7 +435,18 @@ public class SpriteReloaderDialog extends BaseDialog {
         }
 
         public void reload() {
-            SpriteReloaderDialog.loadSpriteFromInto(fi, region, data);
+            try {
+                SpriteReloaderDialog.loadSpriteFromInto(fi, region, data);
+            } catch (SpriteLoadingException e) {
+                enabled = false;
+                message = e.getMessage();
+            }
+        }
+    }
+
+    public static class SpriteLoadingException extends Exception {
+        public SpriteLoadingException(String message) {
+            super(message);
         }
     }
 }

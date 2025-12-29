@@ -1,5 +1,6 @@
 package com.github.nekit508.mappainter.map.generator;
 
+import arc.func.Cons;
 import arc.func.Prov;
 import arc.util.Structs;
 
@@ -14,17 +15,18 @@ public abstract class StateType {
         initState();
     }
 
-    public <T extends State> T create(WFCBaseGenerator generator, int x, int y) {
-        var out = stateType.get();
-        out.set(generator, x, y, this);
+    public <T extends State> T create(WFCBaseGenerator generator, WFCTile tile, Cons<T> cons) {
+        T out = (T) stateType.get();
+        out.create(generator, tile, this);
+        cons.get(out);
         out.init();
-        process(out);
-        return (T) out;
+        generator.states.add(out);
+        return out;
     }
 
-    public <T extends State> void process(T state) {}
-
-    public abstract boolean canCreateAt(WFCBaseGenerator generator, int x, int y);
+    public boolean canCreateAt(WFCBaseGenerator generator, WFCTile tile) {
+        return true;
+    }
 
     protected void initState() {
         try {
@@ -63,24 +65,19 @@ public abstract class StateType {
         return (T) this;
     }
 
-    public class State {
+    public abstract class State implements WFCTile.TileState {
         protected int step = -1;
-        public int x, y;
+        public WFCTile tile;
         public StateType type;
         protected WFCBaseGenerator generator;
 
-        public void set(WFCBaseGenerator generator, int x, int y, StateType type) {
-            this.y = y;
-            this.x = x;
-            this.type = type;
+        public void create(WFCBaseGenerator generator, WFCTile tile, StateType type) {
             this.generator = generator;
+            this.tile = tile;
+            this.type = type;
         }
 
         public void init() {
-            generator.activeStates.add(this);
-        }
-
-        public void fill() {
 
         }
 
@@ -88,7 +85,7 @@ public abstract class StateType {
             step++;
         }
 
-        public boolean active() {
+        public boolean isActive() {
             return false;
         }
 

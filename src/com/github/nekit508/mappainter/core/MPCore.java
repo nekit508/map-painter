@@ -18,6 +18,7 @@ import com.github.nekit508.mappainter.net.packets.MPPackets;
 import com.github.nekit508.mappainter.register.BaseRegistries;
 import com.github.nekit508.mappainter.ui.MPUI;
 import com.github.nekit508.mappainter.world.blocks.misc.NormalBlock;
+import com.github.nekit508.mappainter.world.blocks.production.SomeShittyMechanicalDrill;
 import mindustry.content.Fx;
 import mindustry.content.Items;
 import mindustry.entities.bullet.*;
@@ -239,6 +240,13 @@ public class MPCore extends Mod {
             drawer = new DrawMulti(
                     new DrawTurret()
             );
+        }});
+
+        BaseRegistries.blocks.register("ssmd", () -> new SomeShittyMechanicalDrill("ssmd"){{
+            size = 4;
+            health = 250;
+
+            requirements(Category.production, ItemStack.with(Items.silicon, 100, Items.lead, 100, Items.titanium, 100, Items.copper, 100));
         }});
 
         BaseRegistries.items.resolve();

@@ -16,7 +16,6 @@ import com.github.nekit508.mappainter.ui.scene.OverlayCollapser;
 import mindustry.Vars;
 import mindustry.content.Fx;
 import mindustry.entities.Effect;
-import mindustry.game.Team;
 import mindustry.gen.Icon;
 import mindustry.ui.Styles;
 
@@ -65,7 +64,16 @@ public class TesterControl extends ControlReceiver {
                 }).fill().minWidth(300).minHeight(32);
 
                 table.button("wfc generator", Styles.cleart, () -> {
-                    new WFCBaseGenerator().generate(Team.crux);
+                    Core.app.post(new Runnable() {
+                        final WFCBaseGenerator generator = new WFCBaseGenerator();
+
+                        @Override
+                        public void run() {
+                            if (generator.step())
+                                Core.app.post(this);
+                        }
+                    });
+
                 }).fill().minWidth(300).minHeight(32);
 
                 table.slider(1, 89, 1, f -> MPCore.directionalLighting.sunElevation(f))

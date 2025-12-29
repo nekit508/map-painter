@@ -1,6 +1,5 @@
 package com.github.nekit508.mappainter.ui;
 
-import com.github.nekit508.emkb.ui.dialogs.KeybindsDialog;
 import com.github.nekit508.mappainter.ui.dialogs.NormalMapTester;
 import com.github.nekit508.mappainter.ui.dialogs.ObjectEditorDialog;
 import com.github.nekit508.mappainter.ui.dialogs.SpriteReloaderDialog;
